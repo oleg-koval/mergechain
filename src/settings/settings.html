@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MergeChain — Settings</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        max-width: 620px; margin: 40px auto; padding: 0 20px; line-height: 1.5;
+      }
+      h1 { font-size: 20px; margin-bottom: 4px; }
+      .sub { color: #8b949e; margin-top: 0; }
+      label { display: block; margin: 18px 0 6px; font-weight: 600; }
+      .hint { font-weight: 400; color: #8b949e; font-size: 13px; }
+      input[type='password'], input[type='number'], textarea {
+        width: 100%; box-sizing: border-box; padding: 8px; font-size: 14px;
+        border: 1px solid #d0d7de; border-radius: 6px; background: Field; color: FieldText;
+      }
+      textarea { min-height: 80px; font-family: ui-monospace, monospace; }
+      .row { display: flex; align-items: center; gap: 8px; margin-top: 18px; }
+      .row input { width: auto; }
+      .row label { margin: 0; }
+      button {
+        padding: 8px 16px; font-size: 14px; font-weight: 600;
+        color: #fff; background: #1f883d; border: none; border-radius: 6px; cursor: pointer;
+      }
+      button.secondary { color: inherit; background: transparent; border: 1px solid #d0d7de; }
+      button:disabled { opacity: .6; cursor: default; }
+      #save { margin-top: 24px; }
+      #status { margin-left: 12px; color: #1f883d; font-weight: 600; }
+      /* Sign-in section */
+      .signin { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+      .signin-icon { display: inline-flex; }
+      #signinBtn { display: inline-flex; align-items: center; gap: 8px; background: #24292f; }
+      #signinBtn svg { fill: #fff; }
+      #signinOut { font-size: 13px; }
+      #signinOut .code { font-family: ui-monospace, monospace; font-size: 16px; font-weight: 700; letter-spacing: 2px; background: color-mix(in srgb, #8b949e 22%, transparent); padding: 2px 8px; border-radius: 6px; }
+      #signinOut.ok { color: #2da44e; font-weight: 600; }
+      #signinOut.bad { color: #cf222e; font-weight: 600; }
+      /* Security panel */
+      .secure {
+        margin-top: 16px; padding: 12px 14px; border-radius: 8px;
+        border: 1px solid color-mix(in srgb, #2da44e 40%, transparent);
+        background: color-mix(in srgb, #2da44e 8%, transparent);
+      }
+      .secure-head { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #2da44e; }
+      .secure-head svg { fill: currentColor; }
+      .secure ul { margin: 8px 0 0; padding-left: 22px; font-size: 13px; }
+      .secure li { margin: 4px 0; }
+      .secure code, .hint code { font-size: 12px; background: color-mix(in srgb, #8b949e 22%, transparent); padding: 1px 5px; border-radius: 4px; }
+      details { margin-top: 18px; }
+      summary { cursor: pointer; font-weight: 600; }
+      #verifyOut { margin-left: 10px; font-size: 13px; font-weight: 600; }
+      #verifyOut.ok { color: #2da44e; }
+      #verifyOut.bad { color: #cf222e; }
+      a { color: #2f81f7; }
+    </style>
+  </head>
+  <body>
+    <h1>MergeChain</h1>
+    <p class="sub">GitLab-style merge dependencies for GitHub pull requests.</p>
+    <form id="form">
+      <label>Connect your GitHub account
+        <span class="hint">Authorize via GitHub's device flow — no password, no token to copy. Uses a GitHub App scoped to <strong>Pull requests</strong> on the repos you install it on.</span>
+      </label>
+      <div class="signin">
+        <button type="button" id="signinBtn">
+          <svg class="signin-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+          Sign in with GitHub
+        </button>
+        <span id="signinOut"></span>
+      </div>
+
+      <div class="secure">
+        <div class="secure-head">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m8.533.133 5.25 1.68A1.75 1.75 0 0 1 15 3.48V7c0 1.566-.32 3.182-1.303 4.682-.983 1.498-2.585 2.813-5.032 3.855a1.697 1.697 0 0 1-1.33 0c-2.447-1.042-4.049-2.357-5.032-3.855C1.32 10.182 1 8.566 1 7V3.48a1.75 1.75 0 0 1 1.217-1.667l5.25-1.68a1.748 1.748 0 0 1 1.066 0Zm-.61 1.429.001.001-5.25 1.68a.251.251 0 0 0-.174.237V7c0 1.36.275 2.666 1.057 3.859.784 1.194 2.121 2.342 4.366 3.298a.196.196 0 0 0 .154 0c2.245-.957 3.582-2.103 4.366-3.297C13.225 9.666 13.5 8.358 13.5 7V3.48a.25.25 0 0 0-.174-.238l-5.25-1.68a.25.25 0 0 0-.153 0ZM11.28 6.28l-3.5 3.5a.75.75 0 0 1-1.06 0l-1.5-1.5a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215l.97.97 2.97-2.97a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042Z"/></svg>
+          Your credentials never leave this browser
+        </div>
+        <ul>
+          <li>The access token is stored in <code>chrome.storage.local</code> on this device. Never synced to the cloud, never uploaded.</li>
+          <li>Sent <strong>only</strong> to <code>api.github.com</code> over HTTPS, from the extension's background worker.</li>
+          <li><strong>No backend server exists.</strong> Sign-in uses GitHub's device flow with a public client ID and <strong>no secret</strong> — there is nowhere else for anything to go. Verify in <code>chrome://extensions</code> → Details → site access: only <code>github.com</code> and <code>api.github.com</code>.</li>
+          <li>The GitHub page you browse never receives the token; only the isolated background worker holds it.</li>
+        </ul>
+      </div>
+
+      <details id="advanced">
+        <summary>Advanced: use a personal access token instead</summary>
+        <label for="token">GitHub token
+          <span class="hint">Fine-grained PAT with <strong>Pull requests: read &amp; write</strong> on the repos you use. <a id="patLink" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noreferrer">Create one →</a></span>
+        </label>
+        <input type="password" id="token" autocomplete="off" placeholder="github_pat_… or ghp_…" />
+        <div class="row" style="margin-top:10px">
+          <button type="button" id="verify" class="secondary">Verify token with GitHub</button>
+          <span id="verifyOut"></span>
+        </div>
+      </details>
+
+      <label for="repos">Enabled repositories
+        <span class="hint">One <code>owner/repo</code> per line. Leave empty to run on every repo.</span>
+      </label>
+      <textarea id="repos" placeholder="owner/repo"></textarea>
+
+      <label for="placement">Block placement
+        <span class="hint">Where the dependency block is injected on a PR page.</span>
+      </label>
+      <select id="placement" style="width:100%;box-sizing:border-box;padding:8px;font-size:14px;border:1px solid #d0d7de;border-radius:6px;background:Field;color:FieldText">
+        <option value="top">Top — above the PR description</option>
+        <option value="bottom">Bottom — above the merge box</option>
+        <option value="left">Left — floating in the gutter</option>
+        <option value="right">Right — sidebar, above reviewers</option>
+      </select>
+
+      <label for="maxDepth">Max dependency depth
+        <span class="hint">How deep transitive chains (A → B → C) are followed.</span>
+      </label>
+      <input type="number" id="maxDepth" min="1" max="50" />
+
+      <div class="row">
+        <input type="checkbox" id="showBlock" />
+        <label for="showBlock">Show the dependency block on PR pages</label>
+      </div>
+
+      <button type="submit" id="save">Save</button>
+      <span id="status"></span>
+    </form>
+    <script type="module" src="./settings.ts"></script>
+  </body>
+</html>

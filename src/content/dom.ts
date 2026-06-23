@@ -1,0 +1,367 @@
+// All DOM side effects live here. The selectors target GitHub's PR merge box.
+// ponytail: GitHub ships markup changes regularly — these selectors are a
+// best-effort cascade with fallbacks; when GitHub moves the merge box, update
+// MERGE_AREA_SELECTORS (the single point of fragility).
+
+import type { Placement } from '../types/index.js';
+
+const STYLE_ID = 'prdeps-style';
+const ROOT_ID = 'prdeps-root';
+const BLOCKED_CLASS = 'prdeps-merge-blocked';
+
+const MERGE_AREA_SELECTORS: readonly string[] = [
+  '[data-testid="mergebox-partial"]',
+  '.merge-pr',
+  '#partial-pull-merging',
+  '.js-merge-pr',
+];
+
+export const findMergeArea = (): HTMLElement | null => {
+  for (const sel of MERGE_AREA_SELECTORS) {
+    const found = document.querySelector<HTMLElement>(sel);
+    if (found) return found;
+  }
+  return null;
+};
+
+export const findMergeButtons = (): readonly HTMLButtonElement[] => {
+  const area = findMergeArea();
+  if (!area) return [];
+  return [...area.querySelectorAll<HTMLButtonElement>('button')].filter((b) =>
+    /\bmerge\b|squash|rebase/i.test(b.textContent),
+  );
+};
+
+export const setMergeBlocked = (blocked: boolean, reason: string): void => {
+  findMergeButtons().forEach((btn) => {
+    btn.classList.toggle(BLOCKED_CLASS, blocked);
+    btn.disabled = blocked;
+    if (blocked) {
+      btn.setAttribute('aria-disabled', 'true');
+      btn.setAttribute('title', reason);
+    } else {
+      btn.removeAttribute('aria-disabled');
+    }
+  });
+};
+
+type Anchor = { readonly parent: HTMLElement; readonly before: Node | null };
+
+// Selector cascades are the single point of fragility — update here if GitHub
+// moves these regions. ponytail: each placement falls back so the block is
+// never lost when a selector misses.
+const DESCRIPTION_SELECTORS: readonly string[] = [
+  '[data-testid="issue-body"]',
+  '[data-testid="comment-viewer-outer-box"]',
+];
+const TIMELINE_SELECTORS: readonly string[] = ['.js-discussion', '#discussion_bucket'];
+const SIDEBAR_SELECTORS: readonly string[] = [
+  '[data-testid="sidebar"]',
+  '#partial-discussion-sidebar',
+  '.Layout-sidebar',
+];
+
+const topAnchor = (): Anchor | null => {
+  for (const sel of DESCRIPTION_SELECTORS) {
+    const node = document.querySelector<HTMLElement>(sel);
+    if (node?.parentElement) return { parent: node.parentElement, before: node };
+  }
+  for (const sel of TIMELINE_SELECTORS) {
+    const node = document.querySelector<HTMLElement>(sel);
+    if (node) return { parent: node, before: node.firstChild };
+  }
+  return null;
+};
+
+const mergeAnchor = (): Anchor | null => {
+  const area = findMergeArea();
+  return area?.parentElement ? { parent: area.parentElement, before: area } : null;
+};
+
+const sidebarAnchor = (): Anchor | null => {
+  for (const sel of SIDEBAR_SELECTORS) {
+    const node = document.querySelector<HTMLElement>(sel);
+    if (node) return { parent: node, before: node.firstChild };
+  }
+  return null;
+};
+
+const anchorFor = (placement: Placement): Anchor | null => {
+  switch (placement) {
+    case 'bottom':
+      return mergeAnchor() ?? topAnchor();
+    case 'right':
+      return sidebarAnchor() ?? topAnchor() ?? mergeAnchor();
+    case 'left':
+      // Floating panel in the left gutter; positioned via CSS, lives on <body>.
+      return { parent: document.body, before: null };
+    case 'top':
+      return topAnchor() ?? mergeAnchor();
+  }
+};
+
+export const mountBlock = (block: HTMLElement, placement: Placement): boolean => {
+  const anchor = anchorFor(placement);
+  if (!anchor) return false;
+  block.id = ROOT_ID;
+  block.classList.add(`prdeps-block--at-${placement}`);
+  block.dataset['placement'] = placement;
+  const existing = document.getElementById(ROOT_ID);
+  if (existing && existing.dataset['placement'] === placement) {
+    existing.replaceWith(block); // same spot — swap in place, no flicker
+  } else {
+    existing?.remove(); // placement changed (or first mount) — move to new anchor
+    anchor.parent.insertBefore(block, anchor.before);
+  }
+  return true;
+};
+
+export const blockExists = (): boolean => document.getElementById(ROOT_ID) !== null;
+
+export const removeBlock = (): void => {
+  document.getElementById(ROOT_ID)?.remove();
+};
+
+// Dim the block while an action is in flight (instead of flashing the skeleton).
+export const setBusy = (busy: boolean): void => {
+  document.getElementById(ROOT_ID)?.classList.toggle('prdeps-block--busy', busy);
+};
+
+export const injectStyles = (): void => {
+  if (document.getElementById(STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = CSS;
+  document.head.appendChild(style);
+};
+
+/**
+ * Inject a small status badge after a PR list-row title link.
+ * Idempotent: skips the link if already badged (data-prdeps-badge attribute).
+ */
+export const injectListBadge = (link: HTMLAnchorElement, blocked: boolean): void => {
+  if (link.dataset['prdepsBadge']) return;
+  link.dataset['prdepsBadge'] = '1';
+  const badge = document.createElement('span');
+  badge.className = `prdeps-list-badge prdeps-list-badge--${blocked ? 'blocked' : 'ready'}`;
+  badge.textContent = blocked ? 'Blocked' : 'Ready';
+  link.after(badge);
+};
+
+// GitHub Primer color tokens with hard fallbacks so it reads in both themes.
+const CSS = `
+/* Outer block — flex row matching GitHub's branch-action-item layout */
+.prdeps-block {
+  display: flex;
+  border: 1px solid var(--borderColor-default, #30363d);
+  border-radius: 6px;
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--fgColor-default, #e6edf3);
+}
+.prdeps-block--blocked { border-color: var(--borderColor-danger-emphasis, #f85149); }
+/* Gentle settle-in whenever the block (re)renders */
+@keyframes prdeps-fade-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.prdeps-block { animation: prdeps-fade-in 0.24s ease-out; transition: opacity 0.15s ease; }
+.prdeps-block--busy { opacity: 0.5; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .prdeps-block { animation: none; } }
+/* Placement: left gutter — floating, fixed to the viewport's left edge.
+   width clamps to the viewport so it never collapses or runs off-screen; on
+   narrow viewports it shrinks and rides higher to stay out of the content. */
+.prdeps-block--at-left {
+  position: fixed; left: 16px; top: 96px;
+  width: min(300px, calc(100vw - 32px));
+  max-height: 80vh; overflow-y: auto; z-index: 50;
+  box-shadow: var(--shadow-floating-large, 0 8px 24px rgba(1,4,9,.5));
+}
+@media (max-width: 1280px) {
+  .prdeps-block--at-left { top: 56px; width: min(280px, calc(100vw - 24px)); }
+}
+/* Placement: sidebar (right, above reviewers) — full sidebar width */
+.prdeps-block--at-right { width: 100%; margin-bottom: 16px; font-size: 13px; }
+.prdeps-block--at-right .prdeps-icon-col { width: 34px; padding-top: 12px; }
+.prdeps-block--at-right .prdeps-content { padding: 10px 12px; }
+/* Left icon column — mirrors GitHub's ~44px branch-action-icon strip */
+.prdeps-icon-col {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14px;
+  background: var(--bgColor-muted, #161b22);
+  border-right: 1px solid var(--borderColor-muted, #21262d);
+  border-radius: 5px 0 0 5px;
+}
+.prdeps-block--blocked .prdeps-icon-col {
+  border-right-color: var(--borderColor-danger-muted, rgba(248,81,73,.4));
+}
+/* Every injected octicon renders as a block-level SVG filled with currentColor */
+.prdeps-icon svg, .prdeps-chain-icon svg, .prdeps-summary-icon svg,
+.prdeps-warning-icon svg, .prdeps-remove svg, .prdeps-modebtn-icon svg { display: block; }
+/* The dependency octicon inside the left column */
+.prdeps-chain-icon--default { color: var(--fgColor-muted, #8b949e); }
+.prdeps-chain-icon--blocked { color: var(--fgColor-danger, #f85149); }
+.prdeps-chain-icon--clear   { color: var(--fgColor-success, #3fb950); }
+.prdeps-chain-icon--warning { color: var(--fgColor-attention, #d29922); }
+/* Content area — takes the rest of the width */
+.prdeps-content {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  background: var(--bgColor-muted, #161b22);
+  border-radius: 0 5px 5px 0;
+}
+.prdeps-header { display: flex; align-items: center; gap: 8px; }
+.prdeps-heading { font-weight: 600; font-size: 14px; }
+.prdeps-pill {
+  margin-left: auto;
+  font-size: 12px; font-weight: 500; padding: 1px 8px; border-radius: 999px;
+  background: var(--bgColor-neutral-muted, #6e768166); color: var(--fgColor-muted, #8b949e);
+}
+.prdeps-pill--blocked { background: var(--bgColor-danger-emphasis, #da3633); color: #fff; }
+.prdeps-pill--clear { background: var(--bgColor-success-emphasis, #238636); color: #fff; }
+.prdeps-pill--warning { background: var(--bgColor-attention-emphasis, #9e6a03); color: #fff; }
+/* Summary line — leads the body, mirrors GitHub's status phrasing */
+.prdeps-summary {
+  display: flex; align-items: center; gap: 8px;
+  margin: 10px 0 6px; font-size: 13px; font-weight: 500;
+}
+.prdeps-summary--blocked { color: var(--fgColor-danger, #f85149); }
+.prdeps-summary--clear { color: var(--fgColor-success, #3fb950); }
+.prdeps-summary-icon { flex-shrink: 0; }
+/* Warning banner — graph problem the user can fix; non-blocking */
+.prdeps-warning {
+  display: flex; align-items: center; gap: 8px;
+  margin: 10px 0 6px; font-size: 13px; font-weight: 500;
+  color: var(--fgColor-attention, #d29922);
+}
+.prdeps-warning-icon { flex-shrink: 0; }
+/* Advisory: the merge-block is browser-side only */
+.prdeps-advisory {
+  font-size: 12px; color: var(--fgColor-muted, #8b949e);
+  margin: -2px 0 8px; padding-left: 0;
+}
+/* Dependency / dependent rows */
+.prdeps-list { display: flex; flex-direction: column; }
+.prdeps-row { display: flex; align-items: center; gap: 4px; }
+.prdeps-link {
+  display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
+  padding: 5px 6px; margin: 0 -6px; border-radius: 6px;
+  color: var(--fgColor-default, #e6edf3); text-decoration: none;
+}
+.prdeps-link:hover { background: var(--bgColor-neutral-muted, #6e768119); }
+.prdeps-link:hover .prdeps-title { text-decoration: underline; }
+.prdeps-icon { flex-shrink: 0; }
+.prdeps-row--open .prdeps-icon { color: var(--fgColor-open, #3fb950); }
+.prdeps-row--merged .prdeps-icon { color: var(--fgColor-done, #a371f7); }
+.prdeps-row--closed .prdeps-icon { color: var(--fgColor-closed, #f85149); }
+.prdeps-ref { font-family: ui-monospace, monospace; font-size: 12px; color: var(--fgColor-muted, #8b949e); flex-shrink: 0; }
+.prdeps-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prdeps-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.prdeps-remove, .prdeps-flip {
+  display: flex; flex-shrink: 0; border: none; background: transparent; cursor: pointer;
+  color: var(--fgColor-muted, #8b949e); padding: 6px; border-radius: 6px;
+}
+/* Inline confirm strip (replaces the row's action buttons) */
+.prdeps-confirm { display: flex; align-items: center; gap: 6px; }
+.prdeps-confirm-label { font-size: 12px; color: var(--fgColor-muted, #8b949e); white-space: nowrap; }
+.prdeps-confirm-yes, .prdeps-confirm-no {
+  font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--borderColor-default, #30363d); background: transparent; color: inherit;
+}
+.prdeps-confirm-yes--accent { background: var(--bgColor-accent-emphasis, #1f6feb); color: #fff; border-color: transparent; }
+.prdeps-confirm-yes--danger { background: var(--bgColor-danger-emphasis, #da3633); color: #fff; border-color: transparent; }
+.prdeps-confirm-no { color: var(--fgColor-muted, #8b949e); }
+.prdeps-confirm-no:hover { color: var(--fgColor-default, #e6edf3); }
+.prdeps-flip svg { display: block; }
+.prdeps-flip:hover { color: var(--borderColor-accent-emphasis, #2f81f7); background: var(--bgColor-neutral-muted, #6e768119); }
+.prdeps-remove:hover { color: var(--fgColor-danger, #f85149); background: var(--bgColor-danger-muted, #f8514919); }
+/* Reverse-dependents section */
+.prdeps-dependents { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borderColor-muted, #21262d); }
+.prdeps-subhead {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+  color: var(--fgColor-muted, #8b949e); margin-bottom: 6px;
+}
+.prdeps-empty, .prdeps-error, .prdeps-indirect {
+  color: var(--fgColor-muted, #8b949e); font-size: 13px; padding: 4px 0;
+}
+.prdeps-error { color: var(--fgColor-danger, #f85149); }
+/* Loading skeleton */
+.prdeps-skeleton {
+  border-radius: 6px;
+  background: linear-gradient(90deg,
+    var(--bgColor-neutral-muted, #6e768119) 25%,
+    var(--bgColor-neutral-muted, #6e768133) 37%,
+    var(--bgColor-neutral-muted, #6e768119) 63%);
+  background-size: 400% 100%;
+  animation: prdeps-shimmer 1.4s ease infinite;
+}
+.prdeps-skeleton--icon { width: 16px; height: 16px; flex-shrink: 0; }
+.prdeps-skeleton--text { height: 14px; flex: 1; }
+.prdeps-row .prdeps-skeleton { margin: 5px 0; }
+@keyframes prdeps-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.prdeps-add { position: relative; margin-top: 8px; }
+/* Input + inline direction pill share one row */
+.prdeps-field { display: flex; align-items: stretch; }
+.prdeps-input {
+  flex: 1; min-width: 0; box-sizing: border-box; padding: 5px 8px; font-size: 13px;
+  border: 1px solid var(--borderColor-default, #30363d); border-right: none;
+  border-radius: 6px 0 0 6px;
+  background: var(--bgColor-default, #0d1117); color: var(--fgColor-default, #e6edf3);
+}
+.prdeps-input:focus {
+  outline: none; border-color: var(--borderColor-accent-emphasis, #2f81f7);
+  box-shadow: 0 0 0 1px var(--borderColor-accent-emphasis, #2f81f7);
+}
+/* Clickable direction pill: flips Blocked by <-> Blocks */
+.prdeps-modebtn {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0; white-space: nowrap;
+  padding: 0 10px; font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--borderColor-default, #30363d); border-radius: 0 6px 6px 0;
+  background: var(--bgColor-neutral-muted, #6e768119); color: var(--fgColor-muted, #8b949e);
+}
+.prdeps-modebtn:hover { color: var(--fgColor-default, #e6edf3); border-color: var(--borderColor-accent-emphasis, #2f81f7); }
+.prdeps-modebtn-icon { display: flex; }
+.prdeps-modebtn-icon svg { display: block; }
+/* Fixed width so flipping Blocked by <-> Blocks never resizes the pill */
+.prdeps-modebtn-label { min-width: 62px; text-align: left; }
+/* Two-tone arrows: accent = the selected direction, gray = the other. Accent
+   (not red) so "selected" doesn't read as "blocked/bad" like red does elsewhere. */
+.prdeps-modebtn--blocked-by .prdeps-arrow--in  { fill: var(--fgColor-accent, #2f81f7); }
+.prdeps-modebtn--blocked-by .prdeps-arrow--out { fill: var(--fgColor-muted, #8b949e); }
+.prdeps-modebtn--blocks     .prdeps-arrow--out { fill: var(--fgColor-accent, #2f81f7); }
+.prdeps-modebtn--blocks     .prdeps-arrow--in  { fill: var(--fgColor-muted, #8b949e); }
+.prdeps-dropdown {
+  position: absolute; left: 0; right: 0; z-index: 50;
+  background: var(--bgColor-default, #0d1117); border: 1px solid var(--borderColor-default, #30363d);
+  border-radius: 6px; margin-top: 4px; max-height: 240px; overflow-y: auto;
+  box-shadow: var(--shadow-floating-small, 0 6px 18px rgba(1,4,9,.4));
+}
+.prdeps-dropdown:empty { display: none; }
+.prdeps-option {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 6px 8px;
+  border: none; background: transparent; cursor: pointer; color: var(--fgColor-default, #e6edf3);
+}
+.prdeps-option:hover, .prdeps-option--active { background: var(--bgColor-neutral-muted, #6e768133); }
+.prdeps-merge-blocked {
+  background: var(--bgColor-danger-emphasis, #da3633) !important;
+  border-color: var(--borderColor-danger-emphasis, #f85149) !important;
+  color: #fff !important; cursor: not-allowed !important; opacity: 1 !important;
+}
+.prdeps-list-badge {
+  display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 10px;
+  font-size: 11px; font-weight: 600; vertical-align: middle; line-height: 1.6;
+}
+.prdeps-list-badge--blocked {
+  background: var(--bgColor-danger-muted, #ffd7d5); color: var(--fgColor-danger, #cf222e);
+  border: 1px solid var(--borderColor-danger-emphasis, #f85149);
+}
+.prdeps-list-badge--ready {
+  background: var(--bgColor-success-muted, #dafbe1); color: var(--fgColor-success, #1a7f37);
+  border: 1px solid var(--borderColor-success-emphasis, #2da44e);
+}
+`;
