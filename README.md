@@ -1,63 +1,78 @@
 # MergeChain
 
-MergeChain is a Chrome extension that brings [GitLab-style merge request dependencies](https://docs.gitlab.com/user/project/merge_requests/dependencies/)
-to GitHub pull requests. (Not affiliated with or endorsed by GitHub, Inc.)
+**Stop merging GitHub PRs out of order.** MergeChain brings
+[GitLab-style merge dependencies](https://docs.gitlab.com/user/project/merge_requests/dependencies/)
+to GitHub: declare that a PR is _blocked by_ another, and the merge button greys
+out until the prerequisite lands.
 
-Declare that one PR must merge before another. The extension shows the
-dependency status right above GitHub's merge box and **blocks the merge button**
-(turns it red, disables it) until every dependency has landed. Works across
-repositories and across transitive chains (A → B → C), with cycle detection.
+![CI](https://github.com/oleg-koval/mergechain/actions/workflows/ci.yml/badge.svg)
 
-## Why
+> No backend. Dependency data lives inside the PR itself. Your token never
+> leaves your browser. (Not affiliated with or endorsed by GitHub, Inc.)
 
-We track PR dependencies by hand in comments today. People forget, and
-downstream PRs get merged before the work they depend on. This makes the
-dependency explicit and enforces the order in the UI.
+<!-- TODO: add docs/demo.gif — record: add "#123" as Blocked by → merge button greys out → merge #123 → it unblocks. -->
+![MergeChain on a pull request](docs/screenshot-block.png)
 
-## Features
+## The problem
 
-- **Dependency block** above the merge box, using GitHub's own octicons and
-  colors. Clickable rows link straight to each dependency.
-- **Merge blocking**: while any dependency (direct or transitive) is unmerged,
-  the merge button is disabled and red, with a tooltip naming the blocker.
-- **Reverse dependents**: see which open PRs depend on the one you're viewing.
-- **List badges** on the `/pulls` page flag PRs that are blocked or have deps.
-- **Cross-repo** and **transitive** chains with cycle detection.
+Stacked PRs and shared-file changes get merged in the wrong order all the time.
+The usual fix is a `do not merge before #123` comment that everyone forgets.
+GitLab has had merge-request dependencies for years; GitHub still doesn't.
 
-## How it works
+## What MergeChain does
 
-- **Storage**: dependencies are saved as a hidden HTML comment in the PR body
-  via the GitHub API — no backend, the data lives in the PR and is shared with
-  everyone automatically.
-- **Declaring**: type `#123`, a PR title (fuzzy autocomplete), or
-  `owner/repo#123` for a cross-repo dependency.
+- **Blocks the merge button** while any dependency (direct _or_ transitive) is
+  unmerged, with a tooltip naming the blocker.
+- **Blocked by / Blocks** — declare a dependency in either direction from one
+  inline control; flip an existing one with a click.
+- **Transitive chains** (A → B → C) with **cycle detection**, and **cross-repo**
+  deps (`owner/repo#123`).
+- **"Depend on this" view** — see which open PRs are waiting on the one you're
+  viewing.
+- **List badges** on `/pulls` flag which PRs are blocked vs ready.
+- **No backend** — the dependency list is stored as a hidden marker in the PR
+  description, so teammates with the extension see it automatically.
 
-## Token security
+> **Honest caveat:** the merge block is enforced in _your browser_. A teammate
+> without the extension can still merge a "blocked" PR. MergeChain is a strong
+> nudge and a shared source of truth, not a server-side branch protection rule.
 
-The extension has **no backend**. Your GitHub token is stored in
-`chrome.storage.local` on your device and is sent **only** to `api.github.com`,
-from the isolated background service worker — the GitHub page you browse never
-sees it. The Options page has a **Verify token** button that round-trips the
-token to GitHub and shows who it belongs to, so you can confirm where it goes.
-Use a fine-grained PAT scoped to **Pull requests: read & write** on just the
-repos you need.
+## Install
 
-## Install (unpacked)
+**From the Chrome Web Store:** _coming soon_ — link will go here.
+
+**From source (now):**
 
 ```bash
 npm install
 npm run build
 ```
 
-Then in Chrome: `chrome://extensions` → enable **Developer mode** → **Load
-unpacked** → select the `dist/` folder.
+Then in Chrome: `chrome://extensions` → **Developer mode** → **Load unpacked** →
+select `dist/`. Open the extension's **Options** and **Sign in with GitHub**
+(or paste a fine-grained PAT with Pull requests: read & write).
 
-Open the extension's **Options** to set:
+For teams on private org repos, an org owner installs the companion GitHub App
+once — see [SETUP.md](./SETUP.md).
+
+## How it works
+
+- **Storage:** dependencies are a hidden HTML comment in the PR body, written via
+  the GitHub API. No server, no database.
+- **Declaring:** type `#123`, a PR title (fuzzy autocomplete), or
+  `owner/repo#123`. Keyboard-navigable.
+- **Auth:** GitHub App device-flow sign-in, or a personal access token. The
+  token lives in `chrome.storage.local`, is sent only to `api.github.com` from
+  the background worker, and the page you browse never sees it. See
+  [PRIVACY.md](./PRIVACY.md).
+
+## Settings
 
 | Setting | Purpose |
 |---|---|
-| **GitHub token** | Fine-grained PAT with Pull requests read & write. Stored locally; only ever sent to GitHub. |
+| **Sign in / token** | GitHub App sign-in, or a fine-grained PAT (Pull requests: read & write). Local only. |
 | **Enabled repositories** | One `owner/repo` per line. Empty = run everywhere. |
+| **Block placement** | Top of the PR, by the merge box, left gutter, or sidebar. |
 | **Max dependency depth** | How deep transitive chains are followed (default 10). |
 | **Show dependency block** | Master on/off for the injected UI. |
 
@@ -65,17 +80,17 @@ Open the extension's **Options** to set:
 
 ```bash
 npm run dev        # vite dev server + HMR
-npm test           # unit tests (pure core)
+npm test           # unit tests (pure core + DOM injection)
+npm run test:e2e   # live GitHub E2E (needs a token; see .env.example)
 npm run typecheck  # strict tsc
 npm run lint       # eslint (functional + strict type-checked)
 npm run build      # production build → dist/
+npm run package    # build + zip for the Chrome Web Store
 ```
 
-## Design
-
 Strict functional core, effects pushed to the edges. See [CLAUDE.md](./CLAUDE.md)
-for the architecture and the boundary rules.
+for the architecture. Third-party notices in [NOTICE.md](./NOTICE.md).
 
 ## License
 
-UNLICENSED — internal tool.
+Proprietary — see [LICENSE](./LICENSE).
