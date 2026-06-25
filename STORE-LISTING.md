@@ -59,9 +59,9 @@ listing's Privacy tab. Required because the extension handles an auth token.
 ## Assets to upload
 
 - Store icon: `icons/icon-512.png` (provided; 512×512, will be shown at 128).
-- Screenshots: 1280×800 or 640×400 PNG — capture the block on a PR (blocked +
-  ready states), the popup placement pad, and the options page. (Add before
-  submitting.)
+- Screenshots (1280×800 PNG, ready in `docs/screenshots/`): `01-blocked.png`,
+  `02-unblocks.png`, `03-declare.png`, `04-chain.png`, `05-private.png`. Upload
+  in that order. Regenerate with `python3 docs/make_screenshots.py`.
 
 ## Pre-submit checklist (Chrome Web Store policies)
 
@@ -74,7 +74,7 @@ listing's Privacy tab. Required because the extension handles an auth token.
 - [x] No remote / hosted code; everything is bundled
 - [x] Privacy policy provided (PRIVACY.md)
 - [x] Data-use disclosures: no data collected by developer
-- [ ] Screenshots added
+- [x] Screenshots added (`docs/screenshots/01-05`, 1280×800)
 - [ ] Privacy policy hosted at a public URL and linked in the listing
 - [ ] Trademark clearance on "MergeChain" (your responsibility)
 - [ ] GitHub App made public (so other orgs can install) — see SETUP.md
