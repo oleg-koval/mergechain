@@ -28,3 +28,4 @@ npm-debug.log*
 
 # Local agent / tooling state
 .claude/
+.gstack/
