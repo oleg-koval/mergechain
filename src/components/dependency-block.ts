@@ -11,6 +11,8 @@ import { octiconSvg, type OcticonName } from './octicons.js';
 export type BlockState =
   | { readonly kind: 'loading' }
   | { readonly kind: 'error'; readonly message: string }
+  // Recoverable: token missing or expired. Shows a sign-in CTA, not a dead end.
+  | { readonly kind: 'auth'; readonly message: string; readonly action: string }
   | { readonly kind: 'ready'; readonly result: ResolveResult };
 
 export type BlockCallbacks = {
@@ -24,6 +26,8 @@ export type BlockCallbacks = {
   readonly onRemoveDependent: (dependent: PrRef) => void;
   /** Reverse an existing edge. blockedBy = its current direction. */
   readonly onFlip: (other: PrRef, blockedBy: boolean) => void;
+  /** Open the extension settings to (re-)authenticate with GitHub. */
+  readonly onSignIn: () => void;
 };
 
 const STATE_ICON: Record<PrState, OcticonName> = {
@@ -313,6 +317,19 @@ const advisoryNote = (): HTMLElement =>
     'Enforced in your browser only — teammates without this extension can still merge.',
   );
 
+// Sign-in CTA: shown when the token is missing or expired. A short explanation
+// plus a primary button that opens the extension settings — recoverable, not a
+// red dead end like a generic error.
+const authCta = (message: string, action: string, onSignIn: () => void): HTMLElement => {
+  const wrap = el('div', 'prdeps-auth');
+  wrap.appendChild(el('div', 'prdeps-auth-msg', message));
+  const btn = el('button', 'prdeps-cta', action);
+  btn.type = 'button';
+  btn.addEventListener('click', onSignIn);
+  wrap.appendChild(btn);
+  return wrap;
+};
+
 const summaryLine = (result: ResolveResult): HTMLElement | null => {
   if (result.warning !== null) return null; // the warning banner stands in for the summary
   if (result.direct.length === 0) return null;
@@ -362,13 +379,15 @@ const skeleton = (): HTMLElement => {
 };
 
 const iconMod = (state: BlockState): 'blocked' | 'clear' | 'default' | 'warning' =>
-  state.kind === 'ready' && state.result.warning !== null
+  state.kind === 'auth'
     ? 'warning'
-    : state.kind === 'ready' && state.result.blocked
-      ? 'blocked'
-      : state.kind === 'ready'
-        ? 'clear'
-        : 'default';
+    : state.kind === 'ready' && state.result.warning !== null
+      ? 'warning'
+      : state.kind === 'ready' && state.result.blocked
+        ? 'blocked'
+        : state.kind === 'ready'
+          ? 'clear'
+          : 'default';
 
 const createIconCol = (state: BlockState): HTMLElement => {
   const col = el('div', 'prdeps-icon-col');
@@ -380,6 +399,7 @@ const pill = (
   state: BlockState,
 ): { readonly text: string; readonly mod: string } => {
   if (state.kind === 'loading') return { text: 'Checking', mod: 'checking' };
+  if (state.kind === 'auth') return { text: 'Sign in', mod: 'warning' };
   if (state.kind === 'error') return { text: 'Error', mod: 'error' };
   if (state.result.warning !== null) return { text: 'Warning', mod: 'warning' };
   return state.result.blocked ? { text: 'Blocked', mod: 'blocked' } : { text: 'Ready', mod: 'clear' };
@@ -405,6 +425,12 @@ export const createDependencyBlock = (
 
   if (state.kind === 'loading') {
     content.appendChild(skeleton());
+    block.appendChild(content);
+    return block;
+  }
+
+  if (state.kind === 'auth') {
+    content.appendChild(authCta(state.message, state.action, cb.onSignIn));
     block.appendChild(content);
     return block;
   }

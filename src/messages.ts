@@ -69,7 +69,9 @@ export type Request =
   | { readonly type: 'list-statuses'; readonly owner: string; readonly repo: string }
   | { readonly type: 'verify-token'; readonly token: string }
   // Cheap existence check before persisting a typed ref (catches typos / wrong repo).
-  | { readonly type: 'check-pr'; readonly ref: PrRef };
+  | { readonly type: 'check-pr'; readonly ref: PrRef }
+  // Open the options page from the content script (which can't call openOptionsPage).
+  | { readonly type: 'open-options' };
 
 export type Response =
   | { readonly type: 'search-prs'; readonly result: Result<readonly PrSummaryWire[], AppError> }
@@ -80,4 +82,5 @@ export type Response =
   | { readonly type: 'flip-dep'; readonly result: Result<null, AppError> }
   | { readonly type: 'list-statuses'; readonly result: Result<readonly PrBadgeStatus[], AppError> }
   | { readonly type: 'verify-token'; readonly result: Result<TokenIdentity, AppError> }
-  | { readonly type: 'check-pr'; readonly result: Result<PrSummaryWire, AppError> };
+  | { readonly type: 'check-pr'; readonly result: Result<PrSummaryWire, AppError> }
+  | { readonly type: 'open-options'; readonly result: Result<null, AppError> };

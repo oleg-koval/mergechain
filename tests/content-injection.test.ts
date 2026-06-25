@@ -25,6 +25,7 @@ const noopCb: BlockCallbacks = {
   onRemove: () => undefined,
   onRemoveDependent: () => undefined,
   onFlip: () => undefined,
+  onSignIn: () => undefined,
 };
 
 const mergeBoxFixture = (): void => {
@@ -155,6 +156,27 @@ describe('content DOM injection', () => {
     expect(block.querySelector('.prdeps-remove')).not.toBeNull();
   });
 
+  it('renders a sign-in CTA (not a dead-end error) for an auth state', () => {
+    let signedIn = 0;
+    const cb: BlockCallbacks = { ...noopCb, onSignIn: () => { signedIn += 1; } };
+    const block = createDependencyBlock(
+      current,
+      { kind: 'auth', message: 'Your GitHub sign-in expired. Re-authenticate to keep dependencies working.', action: 'Re-authenticate' },
+      cb,
+    );
+
+    // "Sign in" pill, not the red "Error" one.
+    expect(block.querySelector('.prdeps-pill')?.textContent).toBe('Sign in');
+    expect(block.querySelector('.prdeps-error')).toBeNull();
+
+    // The message and a clickable CTA that fires onSignIn.
+    expect(block.querySelector('.prdeps-auth-msg')?.textContent).toContain('Re-authenticate');
+    const cta = block.querySelector<HTMLButtonElement>('.prdeps-cta');
+    expect(cta?.textContent).toBe('Re-authenticate');
+    cta?.click();
+    expect(signedIn).toBe(1);
+  });
+
   it('routes adds through onAdd or onAddBlocks based on the direction toggle', () => {
     const added: PrRef[] = [];
     const blocks: PrRef[] = [];
@@ -169,6 +191,7 @@ describe('content DOM injection', () => {
       onRemove: () => undefined,
       onRemoveDependent: () => undefined,
       onFlip: () => undefined,
+      onSignIn: () => undefined,
     };
     const result: ResolveResult = { blocked: false, direct: [], transitiveBlocking: [], dependents: [], warning: null };
     const block = createDependencyBlock(current, { kind: 'ready', result }, cb);

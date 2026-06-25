@@ -4,7 +4,8 @@ import { type Result, ok, err } from '../lib/result.js';
 import { refKey } from '../lib/pr-ref.js';
 import { resolveGraph } from '../lib/dependency-graph.js';
 import { upsertDeps } from '../lib/deps-codec.js';
-import { loadSettings } from '../storage.js';
+import { isAuthError } from '../lib/auth-error.js';
+import { loadSettings, saveAuthNeeded } from '../storage.js';
 import { buildGraph, fetchPr, listOpenPrs, updatePrBody, verifyToken, type FetchedPr } from '../api/github.js';
 
 // Service worker: owns the token, runs all network + the pure resolver, and
@@ -223,8 +224,37 @@ const handleCheckPr = async (ref: PrRef): Promise<Result<PrSummaryWire, AppError
   return ok({ ref: pr.value.ref, title: pr.value.title, state: pr.value.state });
 };
 
+// Toolbar icon as a health signal: a red "!" badge when the token is missing or
+// expired, cleared once a call succeeds again. Guarded so we only write storage
+// (which the popup watches) on an actual change, avoiding onChanged churn.
+let lastAuthNeeded: boolean | null = null;
+
+const setAuthState = (authNeeded: boolean): void => {
+  if (lastAuthNeeded === authNeeded) return;
+  lastAuthNeeded = authNeeded;
+  void chrome.action.setBadgeText({ text: authNeeded ? '!' : '' });
+  if (authNeeded) {
+    void chrome.action.setBadgeBackgroundColor({ color: '#d1242f' });
+    void chrome.action.setTitle({ title: 'MergeChain — GitHub sign-in needed. Click to re-authenticate.' });
+  } else {
+    void chrome.action.setTitle({ title: 'MergeChain' });
+  }
+  void saveAuthNeeded(authNeeded);
+};
+
+// A successful call proves the token works → clear. An auth error → flag. Any
+// other failure (network blip, 404 repo) is inconclusive and leaves the state as
+// it was, so a transient hiccup never hides a real "sign-in needed".
+const reflectAuth = (res: Response): void => {
+  if (res.result.ok) setAuthState(false);
+  else if (isAuthError(res.result.error)) setAuthState(true);
+};
+
 const handle = async (req: Request): Promise<Response> => {
   switch (req.type) {
+    case 'open-options':
+      await chrome.runtime.openOptionsPage();
+      return { type: 'open-options', result: ok(null) };
     case 'search-prs': {
       const settings = await loadSettings();
       if (settings.token === '') {
@@ -255,6 +285,8 @@ const handle = async (req: Request): Promise<Response> => {
 chrome.runtime.onMessage.addListener((req: Request, _sender, sendResponse) => {
   handle(req).then(
     (res) => {
+      // open-options does no network work, so it tells us nothing about the token.
+      if (req.type !== 'open-options') reflectAuth(res);
       sendResponse(res);
     },
     () => {

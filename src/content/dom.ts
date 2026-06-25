@@ -290,6 +290,16 @@ const CSS = `
   color: var(--fgColor-muted, #8b949e); font-size: 13px; padding: 4px 0;
 }
 .prdeps-error { color: var(--fgColor-danger, #f85149); }
+/* Sign-in CTA — recoverable auth state (missing/expired token) */
+.prdeps-auth { margin: 10px 0 2px; }
+.prdeps-auth-msg { font-size: 13px; color: var(--fgColor-default, #e6edf3); margin-bottom: 10px; }
+.prdeps-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--borderColor-accent-emphasis, #1f6feb); border-radius: 6px;
+  background: var(--bgColor-accent-emphasis, #1f6feb); color: #fff;
+}
+.prdeps-cta:hover { background: var(--button-primary-bgColor-hover, #388bfd); border-color: var(--button-primary-bgColor-hover, #388bfd); }
 /* Loading skeleton */
 .prdeps-skeleton {
   border-radius: 6px;

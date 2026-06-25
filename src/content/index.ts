@@ -3,6 +3,7 @@ import type { AppError, PrBadgeStatus, PrSummaryWire, Request, Response } from '
 import { DEFAULT_SETTINGS, isPlacement } from '../types/index.js';
 import { parsePrPath, parseListPath, refEquals, formatRefShort } from '../lib/pr-ref.js';
 import { searchPrs } from '../lib/pr-search.js';
+import { authPrompt } from '../lib/auth-error.js';
 import { err } from '../lib/result.js';
 import { loadSettings } from '../storage.js';
 import { createDependencyBlock, type BlockCallbacks, type BlockState } from '../components/dependency-block.js';
@@ -107,11 +108,24 @@ const callbacks = (ref: PrRef): BlockCallbacks => ({
     // The block confirms inline before calling this (it rewrites both PRs).
     void flipDirection(ref, other, blockedBy);
   },
+  onSignIn: () => {
+    // Content scripts can't open the options page directly — ask the worker.
+    void send({ type: 'open-options' });
+  },
 });
 
 const render = (ref: PrRef, state: BlockState): void => {
   lastState = state;
   mountBlock(createDependencyBlock(ref, state, callbacks(ref)), currentPlacement);
+};
+
+// A failed operation becomes a sign-in CTA when the token is missing/expired,
+// otherwise a plain error line. `prefix` adds context (e.g. "Could not add #5:")
+// to non-auth errors only — the auth CTA stands on its own.
+const renderFailure = (ref: PrRef, e: AppError, prefix = ''): void => {
+  const prompt = authPrompt(e);
+  if (prompt) render(ref, { kind: 'auth', message: prompt.message, action: prompt.action });
+  else render(ref, { kind: 'error', message: `${prefix}${errorMessage(e)}` });
 };
 
 const blockReason = (firstBlocking: PrRef | undefined, ref: PrRef): string =>
@@ -123,7 +137,7 @@ const refresh = async (ref: PrRef): Promise<void> => {
   const res = await send({ type: 'resolve', ref });
   if (res.type !== 'resolve') return;
   if (!res.result.ok) {
-    render(ref, { kind: 'error', message: errorMessage(res.result.error) });
+    renderFailure(ref, res.result.error);
     lastBlocked = { blocked: false, reason: '' };
     setMergeBlocked(false, '');
     return;
@@ -142,7 +156,7 @@ const mutate = async (ref: PrRef, next: readonly PrRef[]): Promise<void> => {
   setBusy(true);
   const res = await send({ type: 'set-deps', ref, deps: next });
   if (res.type === 'set-deps' && !res.result.ok) {
-    render(ref, { kind: 'error', message: errorMessage(res.result.error) });
+    renderFailure(ref, res.result.error);
     return;
   }
   await refresh(ref);
@@ -154,10 +168,7 @@ const addDependency = async (ref: PrRef, dep: PrRef): Promise<void> => {
   setBusy(true);
   const check = await send({ type: 'check-pr', ref: dep });
   if (check.type === 'check-pr' && !check.result.ok) {
-    render(ref, {
-      kind: 'error',
-      message: `Could not add ${formatRefShort(dep, ref)}: ${errorMessage(check.result.error)}`,
-    });
+    renderFailure(ref, check.result.error, `Could not add ${formatRefShort(dep, ref)}: `);
     return;
   }
   await mutate(ref, [...currentDeps, dep]);
@@ -168,7 +179,7 @@ const addBlocks = async (ref: PrRef, target: PrRef): Promise<void> => {
   setBusy(true);
   const res = await send({ type: 'add-dep', from: target, dep: ref });
   if (res.type === 'add-dep' && !res.result.ok) {
-    render(ref, { kind: 'error', message: errorMessage(res.result.error) });
+    renderFailure(ref, res.result.error);
     return;
   }
   await refresh(ref);
@@ -179,7 +190,7 @@ const flipDirection = async (ref: PrRef, other: PrRef, blockedBy: boolean): Prom
   setBusy(true);
   const res = await send({ type: 'flip-dep', current: ref, other, blockedBy });
   if (res.type === 'flip-dep' && !res.result.ok) {
-    render(ref, { kind: 'error', message: errorMessage(res.result.error) });
+    renderFailure(ref, res.result.error);
     return;
   }
   await refresh(ref);
@@ -190,7 +201,7 @@ const removeDependent = async (ref: PrRef, dependent: PrRef): Promise<void> => {
   setBusy(true);
   const res = await send({ type: 'remove-dep', from: dependent, dep: ref });
   if (res.type === 'remove-dep' && !res.result.ok) {
-    render(ref, { kind: 'error', message: errorMessage(res.result.error) });
+    renderFailure(ref, res.result.error);
     return;
   }
   await refresh(ref);
@@ -299,17 +310,25 @@ const reconcile = debounce(() => {
 new MutationObserver(reconcile).observe(document.body, { childList: true, subtree: true });
 
 // React live to settings changes (popup quick-switch or Options page). Placement
-// changes just move the existing block; showBlock off removes it; anything else
-// triggers a fresh init.
+// changes just move the existing block; showBlock off removes it; a token change
+// (or any non-ready state) re-fetches so fixing sign-in recovers the open PR
+// immediately instead of leaving the stale CTA up; anything else re-renders.
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local' || !changes['settings']) return;
   const next = changes['settings'].newValue as Settings | undefined;
+  const prev = changes['settings'].oldValue as Settings | undefined;
   if (!next) return;
   if (!next.showBlock) {
     removeBlock();
     return;
   }
   if (isPlacement(next.placement)) currentPlacement = next.placement;
+  // The resolve result depends on the token; re-fetch when it changes, or when
+  // the block is showing a recoverable state (auth/error) that may now clear.
+  if (current && (!prev || prev.token !== next.token || (lastState !== null && lastState.kind !== 'ready'))) {
+    void refresh(current);
+    return;
+  }
   if (current && lastState) render(current, lastState);
   else void init();
 });
