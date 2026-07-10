@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * { margin: 0; box-sizing: border-box; }
+      html, body { width: 440px; height: 280px; overflow: hidden; }
+      .tile {
+        width: 440px; height: 280px; display: flex; align-items: center; gap: 26px;
+        padding: 0 38px;
+        background: radial-gradient(130% 150% at 82% -10%, #1b2444 0%, #0a0e1a 62%);
+        font-family: -apple-system, 'Segoe UI', Inter, sans-serif; color: #e6edf3;
+      }
+      .icon {
+        width: 124px; height: 124px; flex-shrink: 0; border-radius: 27px;
+        box-shadow: 0 10px 34px rgba(0,0,0,.55);
+      }
+      .copy { display: flex; flex-direction: column; gap: 9px; }
+      .name { font-size: 41px; font-weight: 800; letter-spacing: -1.2px; line-height: 1; }
+      .name .a { color: #a78bfa; }
+      .tag { font-size: 16.5px; line-height: 1.35; color: #9aa4b2; font-weight: 500; }
+      .pill {
+        margin-top: 5px; align-self: flex-start; font-size: 12px; font-weight: 700;
+        color: #06281e; background: #34d399; padding: 4px 11px; border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tile">
+      <img class="icon" src="../icons/icon-512.png" />
+      <div class="copy">
+        <div class="name">Merge<span class="a">Chain</span></div>
+        <div class="tag">GitLab-style merge dependencies<br />for GitHub pull requests</div>
+        <span class="pill">Block the merge until deps land</span>
+      </div>
+    </div>
+  </body>
+</html>

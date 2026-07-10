@@ -1,0 +1,6 @@
+# Cloudflare Pages config for the MergeChain landing site.
+# Deploy:  wrangler pages deploy
+# The static site lives in landing/ and is served at mergechain.dev.
+name = "mergechain"
+compatibility_date = "2025-07-10"
+pages_build_output_dir = "landing"

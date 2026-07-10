@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root { color-scheme: light dark; }
+      @media (prefers-color-scheme: light) {
+        .pad .center { color: #59636e; }
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        margin: 0; width: 240px; padding: 14px;
+        background: Canvas; color: CanvasText;
+      }
+      h1 { font-size: 13px; font-weight: 600; margin: 0 0 10px; }
+      .pad {
+        display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto auto auto;
+        gap: 6px; align-items: stretch;
+      }
+      .pad .top    { grid-column: 2; grid-row: 1; }
+      .pad .left   { grid-column: 1; grid-row: 2; }
+      .pad .center { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; color: #8b949e; }
+      .pad .right  { grid-column: 3; grid-row: 2; }
+      .pad .bottom { grid-column: 2; grid-row: 3; }
+      button.pos {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        padding: 8px 4px; font-size: 11px; font-weight: 500; cursor: pointer;
+        border: 1px solid color-mix(in srgb, GrayText 40%, transparent);
+        border-radius: 8px; background: transparent; color: inherit;
+      }
+      button.pos svg { fill: currentColor; }
+      button.pos:hover { border-color: #2f81f7; }
+      button.pos.active {
+        border-color: #2f81f7; color: #2f81f7;
+        background: color-mix(in srgb, #2f81f7 12%, transparent);
+      }
+      .footer { margin-top: 12px; }
+      #open-settings {
+        display: flex; align-items: center; gap: 6px; width: 100%; justify-content: center;
+        padding: 7px; font-size: 12px; cursor: pointer;
+        border: 1px solid color-mix(in srgb, GrayText 40%, transparent);
+        border-radius: 8px; background: transparent; color: inherit;
+      }
+      #open-settings svg { fill: currentColor; }
+      #open-settings:hover { border-color: #2f81f7; }
+      /* Sign-in CTA: shown only when the GitHub token is missing or expired.
+         Pale-red banner so the popup echoes the toolbar icon's "needs attention". */
+      #auth-cta {
+        margin: 0 0 12px; padding: 10px 12px; border-radius: 8px;
+        background: color-mix(in srgb, #f85149 14%, transparent);
+        border: 1px solid color-mix(in srgb, #f85149 45%, transparent);
+      }
+      #auth-cta p { margin: 0 0 8px; font-size: 12px; line-height: 1.4; }
+      #auth-cta button {
+        display: flex; align-items: center; justify-content: center; width: 100%;
+        padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+        border: none; border-radius: 6px; background: #cf222e; color: #fff;
+      }
+      #auth-cta button:hover { background: #a40e26; }
+    </style>
+  </head>
+  <body>
+    <div id="auth-cta" hidden>
+      <p id="auth-cta-msg">GitHub sign-in needed, MergeChain can't read your PRs.</p>
+      <button id="auth-cta-btn" type="button">Re-authenticate</button>
+    </div>
+    <h1>Dependency block position</h1>
+    <div class="pad">
+      <button class="pos top" data-placement="top"></button>
+      <button class="pos left" data-placement="left"></button>
+      <div class="center" id="center"></div>
+      <button class="pos right" data-placement="right"></button>
+      <button class="pos bottom" data-placement="bottom"></button>
+    </div>
+    <div class="footer">
+      <button id="open-settings"><span id="gear"></span> All settings</button>
+    </div>
+    <script type="module" src="./popup.ts"></script>
+  </body>
+</html>

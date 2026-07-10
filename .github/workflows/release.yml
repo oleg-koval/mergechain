@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Mapped to env so the publish step's `if` can test it — the `secrets`
+    # context isn't available in step-level `if:` conditions.
+    env:
+      SUBMIT_KEYS: ${{ secrets.SUBMIT_KEYS }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      # Package dist/ for the stores, excluding source maps.
+      - name: Package extension
+        run: cd dist && zip -r "../mergechain-${{ github.ref_name }}.zip" . -x '*.map' && cd ..
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: mergechain-*.zip
+          generate_release_notes: true
+
+      # Publish to Chrome Web Store + Edge Add-ons + Firefox AMO in one step.
+      # Inert until SUBMIT_KEYS is set (see DEPLOY.md) — a tag without creds just
+      # ships the GitHub release above. Stores require a unique version per
+      # upload, which is exactly why this runs on a version tag, not every push.
+      - name: Publish to browser stores
+        if: ${{ env.SUBMIT_KEYS != '' }}
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: ${{ secrets.SUBMIT_KEYS }}
+          artifact: mergechain-${{ github.ref_name }}.zip
