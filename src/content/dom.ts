@@ -32,15 +32,33 @@ export const findMergeButtons = (): readonly HTMLButtonElement[] => {
   );
 };
 
+// Intercepts click + Enter/Space activation while blocked so the button stays
+// focusable and announces its reason (aria-disabled + title) without being
+// removable from tab order the way native `disabled` would.
+const blockInteraction = (e: Event): void => {
+  e.preventDefault();
+  e.stopPropagation();
+};
+
+const blockKeydown = (e: KeyboardEvent): void => {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+    blockInteraction(e);
+  }
+};
+
 export const setMergeBlocked = (blocked: boolean, reason: string): void => {
   findMergeButtons().forEach((btn) => {
     btn.classList.toggle(BLOCKED_CLASS, blocked);
-    btn.disabled = blocked;
     if (blocked) {
       btn.setAttribute('aria-disabled', 'true');
       btn.setAttribute('title', reason);
+      btn.addEventListener('click', blockInteraction, true);
+      btn.addEventListener('keydown', blockKeydown, true);
     } else {
       btn.removeAttribute('aria-disabled');
+      btn.removeAttribute('title');
+      btn.removeEventListener('click', blockInteraction, true);
+      btn.removeEventListener('keydown', blockKeydown, true);
     }
   });
 };
@@ -100,6 +118,73 @@ const anchorFor = (placement: Placement): Anchor | null => {
   }
 };
 
+// `.prdeps-block--at-left` scrolls (`overflow-y: auto; max-height: 80vh`) so a
+// long autocomplete result list near the panel bottom would otherwise be
+// clipped by that scrolling ancestor. Only `position: fixed` reliably escapes
+// an ancestor's overflow clipping, so in left placement we pin the dropdown to
+// the viewport, synced to its trigger field's rect. Other placements are left
+// on the plain CSS `position: absolute` (unaffected — those anchors don't scroll).
+const DROPDOWN_ESCAPE_ATTR = 'data-prdeps-escaped';
+
+const clearDropdownEscape = (dropdown: HTMLElement): void => {
+  dropdown.style.removeProperty('position');
+  dropdown.style.removeProperty('top');
+  dropdown.style.removeProperty('left');
+  dropdown.style.removeProperty('right');
+  dropdown.style.removeProperty('width');
+  dropdown.style.removeProperty('margin-top');
+  dropdown.removeAttribute(DROPDOWN_ESCAPE_ATTR);
+};
+
+const syncDropdownEscape = (dropdown: HTMLElement, field: HTMLElement): void => {
+  const rect = field.getBoundingClientRect();
+  dropdown.style.position = 'fixed';
+  dropdown.style.left = `${rect.left}px`;
+  dropdown.style.right = 'auto';
+  dropdown.style.top = `${rect.bottom + 4}px`;
+  dropdown.style.marginTop = '0';
+  dropdown.style.width = `${rect.width}px`;
+};
+
+// One set of viewport listeners, installed once, that keeps the escaped
+// dropdown (if any) glued to its field across scroll/resize/DOM changes —
+// e.g. results arriving async and changing the dropdown's height.
+let dropdownEscapeWired = false;
+const wireDropdownEscape = (): void => {
+  if (dropdownEscapeWired) return;
+  dropdownEscapeWired = true;
+  const resync = (): void => {
+    const dropdown = document.querySelector<HTMLElement>(
+      `.prdeps-block--at-left .prdeps-dropdown[${DROPDOWN_ESCAPE_ATTR}]`,
+    );
+    const field = dropdown?.previousElementSibling;
+    if (dropdown && field instanceof HTMLElement) syncDropdownEscape(dropdown, field);
+  };
+  window.addEventListener('scroll', resync, true);
+  window.addEventListener('resize', resync);
+  new MutationObserver(resync).observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+  });
+};
+
+// Called after every (re)mount so a freshly-created dropdown in a left-placed
+// block gets escaped from the panel's scrolling overflow; other placements get
+// any stale inline overrides cleared so the plain CSS rules apply.
+const applyDropdownEscape = (block: HTMLElement, placement: Placement): void => {
+  const dropdown = block.querySelector<HTMLElement>('.prdeps-dropdown');
+  if (!dropdown) return;
+  if (placement === 'left') {
+    dropdown.setAttribute(DROPDOWN_ESCAPE_ATTR, '');
+    const field = dropdown.previousElementSibling;
+    if (field instanceof HTMLElement) syncDropdownEscape(dropdown, field);
+    wireDropdownEscape();
+  } else {
+    clearDropdownEscape(dropdown);
+  }
+};
+
 export const mountBlock = (block: HTMLElement, placement: Placement): boolean => {
   const anchor = anchorFor(placement);
   if (!anchor) return false;
@@ -113,6 +198,7 @@ export const mountBlock = (block: HTMLElement, placement: Placement): boolean =>
     existing?.remove(); // placement changed (or first mount) — move to new anchor
     anchor.parent.insertBefore(block, anchor.before);
   }
+  applyDropdownEscape(block, placement);
   return true;
 };
 
@@ -346,17 +432,35 @@ const CSS = `
 .prdeps-modebtn--blocks     .prdeps-arrow--out { fill: var(--fgColor-accent, #2f81f7); }
 .prdeps-modebtn--blocks     .prdeps-arrow--in  { fill: var(--fgColor-muted, #8b949e); }
 .prdeps-dropdown {
-  position: absolute; left: 0; right: 0; z-index: 50;
+  position: absolute; left: 0; right: 0; z-index: 51;
   background: var(--bgColor-default, #0d1117); border: 1px solid var(--borderColor-default, #30363d);
   border-radius: 6px; margin-top: 4px; max-height: 240px; overflow-y: auto;
   box-shadow: var(--shadow-floating-small, 0 6px 18px rgba(1,4,9,.4));
 }
+/* Left placement: escaped to fixed positioning in JS (mountBlock calls
+   applyDropdownEscape) since the panel's own overflow-y:auto would otherwise
+   clip an absolutely-positioned dropdown near the bottom of a long list. */
 .prdeps-dropdown:empty { display: none; }
 .prdeps-option {
   display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 6px 8px;
   border: none; background: transparent; cursor: pointer; color: var(--fgColor-default, #e6edf3);
 }
 .prdeps-option:hover, .prdeps-option--active { background: var(--bgColor-neutral-muted, #6e768133); }
+/* Keyboard position must not be signalled by background color alone */
+.prdeps-option--active {
+  box-shadow: inset 0 0 0 2px var(--borderColor-accent-emphasis, #2f81f7);
+}
+/* Visible focus ring for interactive icon buttons, consistent with .prdeps-input:focus */
+.prdeps-remove:focus-visible,
+.prdeps-flip:focus-visible,
+.prdeps-modebtn:focus-visible,
+.prdeps-cta:focus-visible,
+.prdeps-confirm-yes:focus-visible,
+.prdeps-confirm-no:focus-visible,
+.prdeps-option:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--borderColor-accent-emphasis, #2f81f7);
+}
 .prdeps-merge-blocked {
   background: var(--bgColor-danger-emphasis, #da3633) !important;
   border-color: var(--borderColor-danger-emphasis, #f85149) !important;

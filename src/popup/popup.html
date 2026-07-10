@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <style>
       :root { color-scheme: light dark; }
+      @media (prefers-color-scheme: light) {
+        .pad .center { color: #59636e; }
+      }
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         margin: 0; width: 240px; padding: 14px;
@@ -40,7 +43,7 @@
       }
       #open-settings svg { fill: currentColor; }
       #open-settings:hover { border-color: #2f81f7; }
-      /* Sign-in CTA — shown only when the GitHub token is missing or expired.
+      /* Sign-in CTA: shown only when the GitHub token is missing or expired.
          Pale-red banner so the popup echoes the toolbar icon's "needs attention". */
       #auth-cta {
         margin: 0 0 12px; padding: 10px 12px; border-radius: 8px;
@@ -58,7 +61,7 @@
   </head>
   <body>
     <div id="auth-cta" hidden>
-      <p id="auth-cta-msg">GitHub sign-in needed — MergeChain can't read your PRs.</p>
+      <p id="auth-cta-msg">GitHub sign-in needed, MergeChain can't read your PRs.</p>
       <button id="auth-cta-btn" type="button">Re-authenticate</button>
     </div>
     <h1>Dependency block position</h1>

@@ -3,7 +3,7 @@ import { defineManifest } from '@crxjs/vite-plugin';
 // ponytail: version bumped here, single source of truth for the manifest.
 export default defineManifest({
   manifest_version: 3,
-  name: 'MergeChain — PR merge dependencies',
+  name: 'MergeChain: PR merge dependencies',
   description:
     'GitLab-style merge dependencies for GitHub pull requests. Block merging until prerequisite PRs land.',
   version: '0.1.0',

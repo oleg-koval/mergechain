@@ -18,7 +18,7 @@ const toNode = (pr: FetchedPr): PrNode => ({ ref: pr.ref, state: pr.state, deps:
 const graphWarning = (e: GraphError): string => {
   switch (e.kind) {
     case 'cycle':
-      return 'Dependency cycle detected — remove one of the dependencies below to break it.';
+      return 'Dependency cycle detected. Remove one of the dependencies below to break it.';
     case 'depth-exceeded':
       return `Dependency chain is deeper than ${e.maxDepth} levels; not all links were checked.`;
     case 'missing-node':
@@ -235,7 +235,7 @@ const setAuthState = (authNeeded: boolean): void => {
   void chrome.action.setBadgeText({ text: authNeeded ? '!' : '' });
   if (authNeeded) {
     void chrome.action.setBadgeBackgroundColor({ color: '#d1242f' });
-    void chrome.action.setTitle({ title: 'MergeChain — GitHub sign-in needed. Click to re-authenticate.' });
+    void chrome.action.setTitle({ title: 'MergeChain: GitHub sign-in needed. Click to re-authenticate.' });
   } else {
     void chrome.action.setTitle({ title: 'MergeChain' });
   }

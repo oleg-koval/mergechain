@@ -66,16 +66,35 @@ describe('content DOM injection', () => {
     expect(document.querySelectorAll('#prdeps-root')).toHaveLength(1);
   });
 
-  it('turns the merge button red and disabled when blocked, then restores it', () => {
+  it('turns the merge button red and blocked when blocked, then restores it', () => {
     setMergeBlocked(true, 'Blocked: #1 must be merged first');
     const btn = findMergeButtons()[0];
-    expect(btn?.disabled).toBe(true);
+    // Native `disabled` must stay false: setting it would drop the button out
+    // of the tab order, so keyboard/SR users could never reach it or hear why
+    // it's blocked. Activation is intercepted (see below) instead.
+    expect(btn?.disabled).toBe(false);
+    expect(btn?.getAttribute('aria-disabled')).toBe('true');
     expect(btn?.classList.contains('prdeps-merge-blocked')).toBe(true);
     expect(btn?.getAttribute('title')).toBe('Blocked: #1 must be merged first');
 
+    const clickEvent = new MouseEvent('click', { cancelable: true, bubbles: true });
+    btn?.dispatchEvent(clickEvent);
+    expect(clickEvent.defaultPrevented).toBe(true);
+
+    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true, bubbles: true });
+    btn?.dispatchEvent(enterEvent);
+    expect(enterEvent.defaultPrevented).toBe(true);
+
     setMergeBlocked(false, '');
     expect(btn?.disabled).toBe(false);
+    expect(btn?.getAttribute('aria-disabled')).toBe(null);
+    expect(btn?.getAttribute('title')).toBe(null);
     expect(btn?.classList.contains('prdeps-merge-blocked')).toBe(false);
+
+    // Activation must no longer be intercepted once unblocked.
+    const clickAfter = new MouseEvent('click', { cancelable: true, bubbles: true });
+    btn?.dispatchEvent(clickAfter);
+    expect(clickAfter.defaultPrevented).toBe(false);
   });
 
   it('renders a blocked block with a clickable dep row, blocked pill, and summary', () => {

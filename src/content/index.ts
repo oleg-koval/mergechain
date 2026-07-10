@@ -53,7 +53,7 @@ const errorMessage = (e: AppError): string => {
     case 'codec':
       return 'The dependency data on this PR is malformed.';
     case 'cycle':
-      return 'Dependency cycle detected — a PR cannot depend on itself.';
+      return 'Dependency cycle detected: a PR cannot depend on itself.';
     case 'depth-exceeded':
       return `Dependency chain is deeper than ${String(e.maxDepth)} levels.`;
     case 'missing-node':

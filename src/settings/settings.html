@@ -3,9 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MergeChain — Settings</title>
+    <title>MergeChain: Settings</title>
     <style>
       :root { color-scheme: light dark; }
+      @media (prefers-color-scheme: light) {
+        .sub, .hint { color: #59636e; }
+        a { color: #0969da; }
+      }
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         max-width: 620px; margin: 40px auto; padding: 0 20px; line-height: 1.5;
@@ -63,7 +67,7 @@
     <p class="sub">GitLab-style merge dependencies for GitHub pull requests.</p>
     <form id="form">
       <label>Connect your GitHub account
-        <span class="hint">Authorize via GitHub's device flow — no password, no token to copy. Uses a GitHub App scoped to <strong>Pull requests</strong> on the repos you install it on.</span>
+        <span class="hint">Authorize via GitHub's device flow: no password, no token to copy. Uses a GitHub App scoped to <strong>Pull requests</strong> on the repos you install it on.</span>
       </label>
       <div class="signin">
         <button type="button" id="signinBtn">
@@ -81,7 +85,7 @@
         <ul>
           <li>The access token is stored in <code>chrome.storage.local</code> on this device. Never synced to the cloud, never uploaded.</li>
           <li>Sent <strong>only</strong> to <code>api.github.com</code> over HTTPS, from the extension's background worker.</li>
-          <li><strong>No backend server exists.</strong> Sign-in uses GitHub's device flow with a public client ID and <strong>no secret</strong> — there is nowhere else for anything to go. Verify in <code>chrome://extensions</code> → Details → site access: only <code>github.com</code> and <code>api.github.com</code>.</li>
+          <li><strong>No backend server exists.</strong> Sign-in uses GitHub's device flow with a public client ID and <strong>no secret</strong>, so there is nowhere else for anything to go. Verify in <code>chrome://extensions</code> → Details → site access: only <code>github.com</code> and <code>api.github.com</code>.</li>
           <li>The GitHub page you browse never receives the token; only the isolated background worker holds it.</li>
         </ul>
       </div>
@@ -107,10 +111,10 @@
         <span class="hint">Where the dependency block is injected on a PR page.</span>
       </label>
       <select id="placement" style="width:100%;box-sizing:border-box;padding:8px;font-size:14px;border:1px solid #d0d7de;border-radius:6px;background:Field;color:FieldText">
-        <option value="top">Top — above the PR description</option>
-        <option value="bottom">Bottom — above the merge box</option>
-        <option value="left">Left — floating in the gutter</option>
-        <option value="right">Right — sidebar, above reviewers</option>
+        <option value="top">Top: above the PR description</option>
+        <option value="bottom">Bottom: above the merge box</option>
+        <option value="left">Left: floating in the gutter</option>
+        <option value="right">Right: sidebar, above reviewers</option>
       </select>
 
       <label for="maxDepth">Max dependency depth

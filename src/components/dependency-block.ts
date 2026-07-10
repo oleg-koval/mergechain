@@ -121,8 +121,8 @@ const relationRow = (
     const flip = el('button', 'prdeps-flip');
     flip.type = 'button';
     flip.title = blockedBy
-      ? 'Blocked by — click to switch to Blocks'
-      : 'Blocks — click to switch to Blocked by';
+      ? 'Blocked by (click to switch to Blocks)'
+      : 'Blocks (click to switch to Blocked by)';
     flip.setAttribute('aria-label', flip.title);
     flip.innerHTML = octiconSvg('arrow-switch');
     // Flipping always rewrites the OTHER PR's body → confirm inline.
@@ -314,7 +314,7 @@ const advisoryNote = (): HTMLElement =>
   el(
     'div',
     'prdeps-advisory',
-    'Enforced in your browser only — teammates without this extension can still merge.',
+    'Enforced in your browser only. Teammates without this extension can still merge.',
   );
 
 // Sign-in CTA: shown when the token is missing or expired. A short explanation
