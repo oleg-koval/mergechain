@@ -120,7 +120,10 @@ Always surface the exact output from the tool to the user.
 - Humans using the extension UI to add/remove deps → `mc-deps show` and `auto` will see the updated state.
 - No backend, no drift risk. Perfect for mixed human + agent teams.
 
-Use the **extension** for visual review, autocomplete declaration, and enforcement at merge time. Use this **skill** for creation-time automation and agent flows.
+Use the **extension** for visual review, autocomplete declaration, and enforcement at merge time:  
+[Chrome Web Store](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb)
+
+Use this **skill** for creation-time automation and agent flows.
 
 ## Verification
 

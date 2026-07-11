@@ -5,7 +5,7 @@ dependencies* to GitHub PRs: declare that a PR is _blocked by_ another (in the U
 merge button greys out until the prerequisite lands.
 
 [![CI](https://github.com/oleg-koval/mergechain/actions/workflows/ci.yml/badge.svg)](https://github.com/oleg-koval/mergechain/actions/workflows/ci.yml)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Add%20to%20Chrome-4285F4?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Add%20to%20Chrome-4285F4?logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb)
 [![GitHub stars](https://img.shields.io/github/stars/oleg-koval/mergechain?style=social)](https://github.com/oleg-koval/mergechain/stargazers)
 
 > No backend. Dependency data lives inside the PR itself. Your token never
@@ -64,7 +64,7 @@ We built MergeChain because we wanted something lightweight that just works with
 ## Quickstart
 
 ### For humans (browser)
-1. [Add to Chrome](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli)
+1. [Add to Chrome](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb)
 2. On any GitHub PR, use the MergeChain UI to declare "Blocked by #123" or "Blocks #456".
 3. The merge button turns red until dependencies land.
 
@@ -78,6 +78,8 @@ node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
 ```
 
 This auto-detects stacked dependencies and keeps everything in sync with the extension.
+
+**Download the pre-built ZIP** from [GitHub Releases](https://github.com/oleg-koval/mergechain/releases/latest) for easy sideloading (no build required).
 
 ## Automation & AI Agents (Stacked PRs & Multiple PRs)
 
@@ -180,7 +182,9 @@ See the complete reference: [skills/mergechain-deps/SKILL.md](./skills/mergechai
 
 ## Install
 
-**From the Chrome Web Store** (recommended): [MergeChain: PR merge dependencies](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli)
+**From the Chrome Web Store** (recommended): [MergeChain: PR merge dependencies](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb)
+
+**Download pre-built ZIP** from the [latest GitHub release](https://github.com/oleg-koval/mergechain/releases/latest), extract it, then in Chrome: `chrome://extensions` → **Developer mode** → **Load unpacked** the folder.
 
 **From source:**
 

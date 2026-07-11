@@ -2,7 +2,7 @@
 
 Use this skill with AI coding agents (Claude, Cursor, Copilot, Grok, etc.) and terminal scripts to declare and manage PR merge dependencies.
 
-The commands write the same hidden marker that the [MergeChain browser extension](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli) uses, so everything stays perfectly in sync.
+The commands write the same hidden marker that the [MergeChain browser extension](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb) uses, so everything stays perfectly in sync.
 
 ## Quick use
 
@@ -35,5 +35,5 @@ The easiest way: copy the whole folder into your project and paste the universal
 ## Learn more
 
 - Main project: https://github.com/oleg-koval/mergechain
-- Browser extension: https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli
+- Browser extension: https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 - Full docs & examples: [SKILL.md](./SKILL.md)
