@@ -5,16 +5,16 @@ changelog:
   categories:
     - title: 🚀 New Features & Improvements
       labels:
-        - feature
         - enhancement
+        - feature
     - title: 🐛 Bug Fixes
       labels:
         - bug
         - fix
     - title: 📚 Documentation
       labels:
-        - docs
         - documentation
+        - docs
     - title: 🛠️ Maintenance & Chores
       labels:
         - chore
@@ -24,9 +24,7 @@ changelog:
         - dependencies
     - title: 🤖 AI / Agent Skill
       labels:
-        - agent
-        - skill
-        - ai
+        - enhancement  # reuse for AI/agent changes
     - title: Other Changes
       labels:
         - "*"
@@ -36,3 +34,6 @@ changelog:
       - question
       - wontfix
       - invalid
+
+# Note: Create repo labels (enhancement, bug, documentation, chore, etc.) if you want precise categorization.
+# Currently falls back gracefully to "Other Changes" for unknown labels.

@@ -8,6 +8,7 @@ Thanks for your interest! We keep things lightweight.
 git clone https://github.com/oleg-koval/mergechain.git
 cd mergechain
 npm install
+npm run typecheck
 npm test
 npm run build
 ```
@@ -22,7 +23,7 @@ npm run build
 
 1. Fork + create a branch from `main`
 2. Make your change
-3. Run `npm test` + `npm run lint`
+3. Run `npm run typecheck` + `npm test` + `npm run lint`
 4. Open a PR
 
 Small docs tweaks, new agent examples, or bug fixes are very welcome.

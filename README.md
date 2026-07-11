@@ -71,13 +71,13 @@ We built MergeChain because we wanted something lightweight that just works with
 ### For AI agents & stacked PR workflows
 See the dedicated section below, or jump straight to the [skill docs](./skills/mergechain-deps/SKILL.md).
 
-After your agent (or script) creates a PR:
+After explicit user approval for remote actions, your agent (or script) can create a PR and run:
 
 ```bash
 node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
 ```
 
-This auto-detects stacked dependencies and keeps everything in sync with the extension.
+This auto-detects stacked dependencies and keeps everything in sync with the extension. (Gate all remote mutations behind sign-off per repo guidelines.)
 
 **Download the pre-built ZIP** from [GitHub Releases](https://github.com/oleg-koval/mergechain/releases/latest) for easy sideloading (no build required).
 
@@ -112,13 +112,15 @@ You have the MergeChain PR dependency skill available.
 
 Prerequisites in this environment:
 - `gh` CLI is installed and authenticated
-- Node.js is available
+- Node.js 18+ is available
 - The folder `skills/mergechain-deps/` exists in the project
 
 Core workflow:
-- After you create a stacked PR (a PR whose base branch is another feature branch), immediately run:
+- Prepare changes for a stacked PR.
+- **Require explicit user approval** before any remote mutation: gh pr create, node skills/mergechain-deps/mc-deps.mjs auto, git push, or PR edits.
+- After approval and PR creation, immediately run:
   node skills/mergechain-deps/mc-deps.mjs auto <new-pr-number>
-- Use `add`, `show`, or `rm` when the user asks to declare or manage dependencies.
+- Use `add`, `show`, or `rm` when the user asks to declare or manage dependencies (after approval if remote).
 - Always report exactly what the command printed.
 - Never invent a dependency — only use what `auto` or explicit `add` succeeds with.
 

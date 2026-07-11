@@ -98,4 +98,6 @@ Load `dist/` via `chrome://extensions` → Developer mode → "Load unpacked".
 
 ## Stacked PRs & the Skill
 
-When creating or reviewing stacked PRs (in this repo or for users of MergeChain), use the terminal skill in `skills/mergechain-deps/`. The `mc-deps.mjs` helper + SKILL.md (with adapters for Claude, Cursor, Copilot, Grok, etc.) writes the same marker the extension understands. Call `auto` right after creating a PR in agent flows. See `skills/mergechain-deps/SKILL.md`.
+When creating or reviewing stacked PRs (in this repo or for users of MergeChain), use the terminal skill in `skills/mergechain-deps/`. The `mc-deps.mjs` helper + SKILL.md (with adapters for Claude, Cursor, Copilot, Grok, etc.) writes the same marker the extension understands. 
+
+**Require explicit user approval** before creating a PR or immediately invoking `auto` (or any git push / remote-modifying command). See `skills/mergechain-deps/SKILL.md`.
