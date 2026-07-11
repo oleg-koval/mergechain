@@ -25,7 +25,9 @@ See [SKILL.md](./SKILL.md) — it contains the full ready-to-use instructions an
 - Grok
 - Windsurf, Kiro, Codex, and others
 
-The easiest way: copy the whole folder into your project and paste the universal prompt from SKILL.md into your agent.
+The universal prompt for agents is documented in the main project [README.md](../../README.md#easy-integration-instructions-copy--paste-into-your-agent) (under Automation & AI Agents section). Copy the prompt section and the skill files into your project for the agent to use `mc-deps.mjs`.
+
+The easiest way: copy the whole folder into your project and paste the universal prompt.
 
 ## Requirements
 
