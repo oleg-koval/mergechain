@@ -1,0 +1,5 @@
+{
+  "name": "olko-mergechain-deps",
+  "description": "Declare and manage MergeChain PR merge-dependencies from the terminal or AI agent. Writes the marker used by the browser extension.",
+  "skills": "./skills"
+}

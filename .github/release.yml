@@ -1,0 +1,38 @@
+# Release notes configuration
+# https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
+
+changelog:
+  categories:
+    - title: 🚀 New Features & Improvements
+      labels:
+        - feature
+        - enhancement
+    - title: 🐛 Bug Fixes
+      labels:
+        - bug
+        - fix
+    - title: 📚 Documentation
+      labels:
+        - docs
+        - documentation
+    - title: 🛠️ Maintenance & Chores
+      labels:
+        - chore
+        - maintenance
+        - refactor
+        - ci
+        - dependencies
+    - title: 🤖 AI / Agent Skill
+      labels:
+        - agent
+        - skill
+        - ai
+    - title: Other Changes
+      labels:
+        - "*"
+  exclude:
+    labels:
+      - duplicate
+      - question
+      - wontfix
+      - invalid

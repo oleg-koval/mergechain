@@ -195,7 +195,9 @@
     <nav>
       <a href="#how">How it works</a>
       <a href="#install">Install</a>
+      <a href="#agents">AI Agents</a>
       <a href="https://github.com/oleg-koval/mergechain">GitHub</a>
+      <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps">Skill</a>
     </nav>
   </div>
 </header>
@@ -204,16 +206,24 @@
   <section class="hero" style="border-top:none">
     <div class="wrap">
       <p class="eyebrow">Chrome extension for GitHub pull requests</p>
-      <h1>Stop merging pull requests <span class="hl">out of order.</span></h1>
-      <p class="lede">MergeChain adds merge dependencies to GitHub PRs. Say a PR is <em>blocked by</em> another, and its merge button stays disabled until the prerequisite lands. It works across repos and down transitive chains.</p>
+      <h1>
+        <img src="/icon-32.png" width="28" height="28" alt="" style="vertical-align: -4px; margin-right: 8px; border-radius: 4px;">
+        Stop merging pull requests <span class="hl">out of order.</span>
+      </h1>
+      <p class="lede">MergeChain adds merge dependencies to GitHub PRs. Say a PR is <em>blocked by</em> another, and its merge button stays disabled until the prerequisite lands. Works great with humans <em>and</em> AI coding agents (Claude, Cursor, Copilot, Grok…).</p>
       <div class="cta-row">
-        <a class="btn btn--primary" href="https://github.com/oleg-koval/mergechain#install">
+        <a class="btn btn--primary" href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Zm4.47-4.53a.75.75 0 0 0 1.06 0l3-3a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L8.75 7.44V1.75a.75.75 0 0 0-1.5 0v5.69L5.28 5.47a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042Z"/></svg>
-          Get MergeChain
+          Add to Chrome
         </a>
         <a class="btn btn--ghost" href="https://github.com/oleg-koval/mergechain">View source</a>
-        <span class="cta-note">Free. No account, no server.</span>
+        <span class="cta-note">Free • No account required • Open source</span>
       </div>
+      <p style="margin: 12px 0 0; font-size: 13px;">
+        <a href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Also available on the Chrome Web Store →</a>
+        &nbsp;·&nbsp;
+        <a href="https://github.com/oleg-koval/mergechain" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">⭐ Star on GitHub</a>
+      </p>
 
       <div class="demo">
         <div class="card">
@@ -306,10 +316,98 @@
       <p class="sec-eyebrow">Install</p>
       <h2>Get it running in a minute.</h2>
       <ol>
-        <li>Chrome Web Store listing: <strong>coming soon</strong>.</li>
-        <li>Or load it now: download the latest build, open <code>chrome://extensions</code>, enable Developer mode, and <strong>Load unpacked</strong> → <code>dist/</code>.</li>
+        <li>
+          <a class="btn btn--primary" href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli" target="_blank" rel="noopener" style="padding: 6px 12px; font-size: 13px; margin-bottom: 4px;">Add to Chrome</a>
+          <span style="display:block; margin-top:2px;">(recommended — direct from the Chrome Web Store)</span>
+        </li>
+        <li>From source: download the latest build, open <code>chrome://extensions</code>, enable Developer mode, and <strong>Load unpacked</strong> → <code>dist/</code>.</li>
         <li>Open the extension’s Options and sign in with GitHub (device flow, or a fine-grained token with Pull requests: read &amp; write).</li>
       </ol>
+    </div>
+  </section>
+
+  <section id="agents" style="border-top:1px solid var(--border-muted); padding: 48px 0 32px;">
+    <div class="wrap">
+      <p class="sec-eyebrow">For AI Agents &amp; Coding Assistants</p>
+      <h2>Easy integration for Claude, Cursor, Copilot, Grok &amp; more</h2>
+      <p style="max-width: 65ch; color: var(--muted);">
+        Let your agent automatically declare merge dependencies when creating stacked PRs.
+        The skill writes the exact same marker as the browser extension.
+        Popular with teams that ship features as a series of small PRs using AI assistants.
+      </p>
+
+      <div style="margin: 24px 0;">
+        <strong style="display:block; margin-bottom:8px;">1. Universal prompt — paste into any agent</strong>
+        <pre style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px; font-size:13px; overflow:auto; line-height:1.45;"><code>You have the MergeChain PR dependency skill.
+
+After you create a PR (especially stacked ones), run:
+node skills/mergechain-deps/mc-deps.mjs auto &lt;pr-number&gt;
+
+Other commands:
+- node skills/mergechain-deps/mc-deps.mjs show &lt;pr&gt;
+- node skills/mergechain-deps/mc-deps.mjs add &lt;pr&gt; &lt;dep&gt;
+- node skills/mergechain-deps/mc-deps.mjs rm &lt;pr&gt; &lt;dep&gt;
+
+Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</code></pre>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 20px;">
+        <div>
+          <strong>Claude Code</strong>
+          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+            <li>Copy <code>skills/mergechain-deps/</code> into your project</li>
+            <li>Place <code>SKILL.md</code> at <code>.claude/skills/mergechain-deps/SKILL.md</code></li>
+            <li>Or paste the Universal prompt above</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Cursor</strong>
+          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+            <li>Use <code>skills/mergechain-deps/adapters/cursor/</code></li>
+            <li>Add to <code>.cursor/rules/</code> or project rules</li>
+            <li>Paste the Universal prompt</li>
+          </ul>
+        </div>
+        <div>
+          <strong>GitHub Copilot</strong>
+          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+            <li><code>.github/prompts/mergechain-deps.prompt.md</code> is included</li>
+            <li>Copilot picks it up automatically</li>
+            <li>Or paste the Universal prompt in custom instructions</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Grok, Windsurf, Kiro, Codex</strong>
+          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+            <li>Paste the Universal prompt into context or rules</li>
+            <li>Use the matching adapter in <code>skills/mergechain-deps/adapters/</code></li>
+            <li>Ensure <code>gh</code> + Node are available to the agent</li>
+          </ul>
+        </div>
+      </div>
+
+      <p style="margin-top: 20px; font-size:14px;">
+        Full details + all adapters: 
+        <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps" target="_blank" rel="noopener">skills/mergechain-deps/SKILL.md</a>
+      </p>
+
+      <p style="margin-top:16px; font-size:13px; color:var(--muted);">
+        Works great with: <strong>Claude Code • Cursor • GitHub Copilot • Grok • Windsurf • Kiro</strong> and any agent that can run shell commands.
+      </p>
+
+      <div style="margin-top: 28px;">
+        <strong style="display:block; margin-bottom: 10px; font-size:14px;">What it looks like after an agent declares a dependency</strong>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <div style="flex:1; min-width: 220px;">
+            <img src="docs/screenshots/01-blocked.png" alt="Blocked PR after agent declares dep" style="width:100%; border-radius:6px; border:1px solid var(--border);">
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Merge button blocked (agent used <code>auto</code>)</div>
+          </div>
+          <div style="flex:1; min-width: 220px;">
+            <img src="docs/screenshots/04-chain.png" alt="Transitive chain view" style="width:100%; border-radius:6px; border:1px solid var(--border);">
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Transitive chain visible to the whole team</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -325,6 +423,10 @@
       <a href="https://olegkoval.com">Built by Oleg Koval</a>
       <a href="https://github.com/oleg-koval">@oleg-koval</a>
       <a href="https://github.com/oleg-koval/mergechain">Source</a>
+      <a href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli" target="_blank" rel="noopener">Chrome Web Store</a>
+      <a href="https://github.com/oleg-koval/mergechain">GitHub</a>
+      <a href="https://github.com/oleg-koval/mergechain/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+      <a href="/privacy">Privacy</a>
       <!-- DONATE_LINK: wire this to the funding URL once chosen (GitHub Sponsors / Ko-fi). -->
       <a href="#" data-donate>Support the project</a>
     </div>

@@ -6,6 +6,10 @@
 // vice-versa:
 //   <!-- pr-merge-deps:{"v":1,"deps":[{"owner":"o","repo":"r","number":91}]} -->
 //
+// See the vibrant agent-ready documentation:
+//   skills/mergechain-deps/SKILL.md  (includes adapters for Claude, Cursor,
+//   Copilot, Codex, Grok, Windsurf, Kiro)
+//
 // Commands:
 //   show <pr>                 print the deps declared on <pr>
 //   add  <pr> <dep>           declare <pr> is BLOCKED BY <dep>
