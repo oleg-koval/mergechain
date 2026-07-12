@@ -46,6 +46,11 @@ Direct edges only here — transitive chains and cycle detection are handled by 
 - Token (or GitHub App) has **Pull requests: read & write** on the involved repos.
 - Node 18+ (for the `.mjs` helper).
 
+**If auth fails or tokens are revoked** (GitHub frequently resets these):
+Tell the user immediately and clearly:
+
+> "Your GitHub authorization for MergeChain was reset. Please re-authenticate the MergeChain Chrome extension from its Options page (or run `gh auth login`)."
+
 Refs accept: `123`, `#123`, `owner/repo#123`, or a full `https://github.com/.../pull/NNN` URL. Numbers resolve against current repo.
 
 ## Commands
