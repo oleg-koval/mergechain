@@ -6,7 +6,7 @@ import functional from 'eslint-plugin-functional';
 // background) relax the rules that are impossible at an I/O edge.
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**', '*.config.*', 'coverage/**', 'e2e/**', 'skills/**', 'landing/**'],
+    ignores: ['dist/**', 'node_modules/**', '*.config.*', 'coverage/**', 'e2e/**', 'skills/**', 'landing/**', 'scripts/**'],
   },
   ...tseslint.configs.strictTypeChecked,
   {

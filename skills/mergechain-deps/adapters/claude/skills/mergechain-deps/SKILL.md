@@ -19,11 +19,23 @@ metadata:
 
 Manage GitHub PR merge dependencies by editing a hidden marker in the PR body using the `gh` CLI. The marker format is byte-identical to the MergeChain browser extension, so changes made here are instantly visible in the UI (and the reverse).
 
-```
+```text
 <!-- pr-merge-deps:{"v":1,"deps":[{"owner":"o","repo":"r","number":91}]} -->
 ```
 
 **Primary script:** `skills/mergechain-deps/mc-deps.mjs` (zero npm dependencies).
+
+## Quick start for agents
+
+1. After creating a PR that should be blocked by another:
+   ```
+   node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
+   ```
+
+2. If GitHub reports auth problems:
+   - Tell the user: "Re-authenticate the MergeChain extension or run `gh auth login`."
+
+3. The marker written is identical to what the browser extension uses.
 
 ## Overview
 
@@ -46,10 +58,28 @@ Direct edges only here — transitive chains and cycle detection are handled by 
 - Token (or GitHub App) has **Pull requests: read & write** on the involved repos.
 - Node 18+ (for the `.mjs` helper).
 
-**If auth fails or tokens are revoked** (GitHub frequently resets these):
-Tell the user immediately and clearly:
+### Authentication (very important)
 
-> "Your GitHub authorization for MergeChain was reset. Please re-authenticate the MergeChain Chrome extension from its Options page (or run `gh auth login`)."
+The skill talks to GitHub only through the `gh` CLI.
+
+**If you see authentication errors or 401s:**
+
+1. Check status:
+   ```
+   gh auth status
+   ```
+
+2. Re-authenticate (preferred for agents):
+   ```
+   gh auth login --web
+   ```
+   or follow the device flow prompt.
+
+3. **For the human user**: GitHub can revoke tokens at any time (password change, org policy, etc). If the extension or `gh` stops working, tell the user clearly:
+
+   > "Your GitHub authorization for MergeChain appears to have been reset or revoked. Please open the MergeChain extension Options page and re-authorize (device flow or PAT). You can also run `gh auth login` in your terminal."
+
+The browser extension and this skill share the same marker format — once re-authorized, everything stays in sync. No server is involved.
 
 Refs accept: `123`, `#123`, `owner/repo#123`, or a full `https://github.com/.../pull/NNN` URL. Numbers resolve against current repo.
 
@@ -85,7 +115,9 @@ node skills/mergechain-deps/mc-deps.mjs add 155 143
 
 ### 2. Auto for stacked PRs (most common for multi-PR agents)
 
-After you (or the agent) push a branch and open a PR:
+**Important:** Require explicit user approval before running remote commands like `auto`, `gh pr create`, or `git push`.
+
+After approval and you (or the agent) push a branch and open a PR:
 
 ```bash
 # The script infers the prerequisite from the base branch
@@ -99,11 +131,11 @@ Typical agent loop:
 4. `node skills/mergechain-deps/mc-deps.mjs auto <pr>`
 5. Tell the user: "Declared dependency on #NNN (inferred from base)".
 
-The `auto` command is safe: if the PR targets default branch or no matching open PR is found, it reports and does nothing.
+The `auto` command is safe for default cases: if the PR targets default branch or no matching open PR is found, it reports and does nothing. If multiple open PRs share the head branch (ambiguous), it now reports the ambiguity and does nothing (no-op); use explicit `add` instead.
 
 ### 3. Full multi-PR agent session example
 
-```
+```text
 User: Implement feature X as stacked PRs on top of my auth changes.
 
 Agent:
@@ -134,11 +166,12 @@ Use this **skill** for creation-time automation and agent flows.
 
 After any `add`/`rm`/`auto`:
 - The command prints the new state: `XXX now blocked by [list or nothing]`
-- `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty).
+- For same-repo: `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty).
+- For cross-repo: use `gh pr view NNN --repo owner/repo --json body`.
 - No duplicate entries.
 - Cross-repo refs are preserved correctly.
 
-Example clean marker removal leaves the rest of the PR body untouched.
+Note: marker removal uses strip + trim for cleanliness (not strict byte-for-byte preservation of surrounding whitespace).
 
 ## Safety & Notes
 
