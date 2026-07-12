@@ -19,7 +19,7 @@ merge button greys out until the prerequisite lands.
 > 3. Merge the blocker PR (#128)  
 > 4. Return to the dependent PR → button turns green and says "Squash and merge"
 
-![MergeChain on a pull request](docs/screenshot-block.png)
+![MergeChain on a pull request](docs/screenshots/01-blocked.png)
 
 ## The problem
 
