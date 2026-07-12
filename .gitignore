@@ -29,3 +29,6 @@ npm-debug.log*
 # Local agent / tooling state
 .claude/
 .gstack/
+
+# Private launch planning docs (do not commit)
+LAUNCH.md

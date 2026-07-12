@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# MergeChain landing site
+Sitemap: https://mergechain.dev/sitemap.xml
