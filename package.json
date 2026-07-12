@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "lint": "eslint .",
+    "check:skill-sync": "node scripts/check-skill-sync.mjs",
     "typecheck": "tsc --noEmit",
     "package": "npm run build && cd dist && zip -r ../mergechain.zip . -x '*.map' && cd .."
   },
