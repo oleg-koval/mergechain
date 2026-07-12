@@ -170,6 +170,12 @@ const cmdAuto = (ref) => {
     );
     return;
   }
+  if (candidates.length > 1) {
+    process.stdout.write(
+      `${fmt(ref)} is based on "${baseRefName}" but multiple open PRs have that head branch (ambiguous); not inferring automatically. Use explicit 'add' instead.\n`,
+    );
+    return;
+  }
   const dep = { ...ref, number: candidates[0].number };
   process.stdout.write(`Inferred: ${fmt(ref)} is stacked on "${baseRefName}" (${fmt(dep)}).\n`);
   cmdAdd(ref, dep);

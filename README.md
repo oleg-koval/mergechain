@@ -69,6 +69,7 @@ We built MergeChain because we wanted something lightweight that just works with
 3. The merge button turns red until dependencies land.
 
 ### For AI agents & stacked PR workflows
+
 See the dedicated section below, or jump straight to the [skill docs](./skills/mergechain-deps/SKILL.md).
 
 After explicit user approval for remote actions, your agent (or script) can create a PR and run:

@@ -134,8 +134,7 @@ Never mass-DM. Never post the same copy across threads.
 
 ## Next actions
 
-1. Decide: public launch (repo public + CWS published) or private/internal only.
-2. Record `docs/demo.gif` (the unblock loop) + drop the three screenshots in `docs/`.
-3. Extension published at https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb — update any remaining references if needed.
-4. Host `PRIVACY.md` at a public URL; finish the `STORE-LISTING.md` checklist.
-5. Pick one primary channel (Show HN _or_ Product Hunt) for day one; don't split focus.
+1. Record `docs/demo.gif` (the unblock loop) + drop the three screenshots in `docs/`.
+2. Extension is published at https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb — update any remaining references if needed.
+3. Host `PRIVACY.md` at a public URL; finish the `STORE-LISTING.md` checklist.
+4. Pick one primary channel (Show HN _or_ Product Hunt) for day one; don't split focus.

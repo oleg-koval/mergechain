@@ -24,7 +24,7 @@ npm run build
 1. Fork + create a branch from `main`
 2. Make your change
 3. Run `npm run typecheck` + `npm test` + `npm run lint`
-4. Open a PR
+4. Open a PR targeting `main` (contributions must target `main`)
 
 Small docs tweaks, new agent examples, or bug fixes are very welcome.
 

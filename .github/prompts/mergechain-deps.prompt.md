@@ -12,13 +12,16 @@ Manage GitHub PR merge dependencies by editing a hidden marker in the PR body us
 
 **Script:** `skills/mergechain-deps/mc-deps.mjs`
 
-## Key Commands
+Key Commands
+------------
+
 - `node skills/mergechain-deps/mc-deps.mjs show <pr>`
 - `node skills/mergechain-deps/mc-deps.mjs add <pr> <dep>` (validates existence)
 - `node skills/mergechain-deps/mc-deps.mjs rm <pr> <dep>`
 - `node skills/mergechain-deps/mc-deps.mjs auto <pr>` (best for stacked PRs after `gh pr create`)
 
-## Typical Agent Flow for Stacked PRs
+Typical Agent Flow for Stacked PRs
+----------------------------------
 1. Branch + implement.
 2. **Require explicit approval** before `gh pr create`, auto, or any remote mutation.
 3. `gh pr create` (capture number).

@@ -24,7 +24,9 @@ changelog:
         - dependencies
     - title: 🤖 AI / Agent Skill
       labels:
-        - enhancement  # reuse for AI/agent changes
+        - ai
+        - agent
+        - skill
     - title: Other Changes
       labels:
         - "*"
@@ -35,5 +37,4 @@ changelog:
       - wontfix
       - invalid
 
-# Note: Create repo labels (enhancement, bug, documentation, chore, etc.) if you want precise categorization.
-# Currently falls back gracefully to "Other Changes" for unknown labels.
+# Note: Create the labels `ai`, `agent`, `skill` (and others like `enhancement`, `bug`, `documentation`) in the repo for precise categorization. Otherwise falls to "Other Changes".

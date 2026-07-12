@@ -96,7 +96,7 @@ Typical agent loop:
 4. `node skills/mergechain-deps/mc-deps.mjs auto <pr>`
 5. Tell the user: "Declared dependency on #NNN (inferred from base)".
 
-The `auto` command is safe for default cases: if the PR targets default branch or no matching open PR is found, it reports and does nothing. Note: if multiple open PRs have the same head branch, it picks the first (candidates[0]); prefer explicit `add` for precision in ambiguous cases.
+The `auto` command is safe for default cases: if the PR targets default branch or no matching open PR is found, it reports and does nothing. If multiple open PRs share the head branch (ambiguous), it now reports the ambiguity and does nothing (no-op); use explicit `add` instead.
 
 ### 3. Full multi-PR agent session example
 
@@ -131,7 +131,8 @@ Use this **skill** for creation-time automation and agent flows.
 
 After any `add`/`rm`/`auto`:
 - The command prints the new state: `XXX now blocked by [list or nothing]`
-- `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty). Note: for cross-repo use `--repo owner/repo`.
+- For same-repo: `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty).
+- For cross-repo: use `gh pr view NNN --repo owner/repo --json body`.
 - No duplicate entries.
 - Cross-repo refs are preserved correctly.
 
