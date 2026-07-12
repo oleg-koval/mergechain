@@ -74,7 +74,7 @@ The site must feel cohesive with the extension's own UI (popup and settings page
 
 - Generic "AI tool" aesthetics (neon, excessive gradients, overused cards).
 - Inconsistent linking (always use UTM for store).
-- Hype language (stick to honest, grounded tone from LAUNCH.md).
+- Hype language (stick to the honest, grounded tone in .impeccable.md).
 - Poor hierarchy or dense text blocks.
 
 This document, combined with .impeccable.md, guides all website and related UI work.
