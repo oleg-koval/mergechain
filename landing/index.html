@@ -554,80 +554,112 @@
   }
 
   const AGENT_PROMPTS = {
-    universal: `You have access to the MergeChain skill for declaring GitHub PR merge dependencies.
+    universal: `You are setting up and using the MergeChain PR dependency skill in this project.
 
-The user has already installed the MergeChain Chrome extension and authorized it with GitHub (device flow or PAT). You do NOT need to ask them to install anything else in the browser.
+The user has **already installed and authorized** the MergeChain Chrome extension (via device flow or PAT). Do NOT ask them to install or authorize the browser extension again — that part is done.
 
-Your job:
-- After creating any stacked or dependent PR, declare the dependency using the mc-deps tool so the merge button is correctly blocked for humans too.
-- Command (run after the PR exists): node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
-- Other useful commands: show, add, rm.
+**Step 1: Install the skill files if they are not present**
 
-Full skill docs are at skills/mergechain-deps/SKILL.md in this repo.
+The official skill is at:
+https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
 
-If gh is not authenticated, tell the user exactly: "Run 'gh auth login' in your terminal or re-authorize the MergeChain extension in its Options page."
+Do the following (use curl, or ask the user to add the files):
+- Create a folder: skills/mergechain-deps/
+- Download mc-deps.mjs into it (https://raw.githubusercontent.com/oleg-koval/mergechain/main/skills/mergechain-deps/mc-deps.mjs)
+- For best experience with your agent:
+  - Claude Code: also create .claude/skills/mergechain-deps/ and put SKILL.md there
+  - Cursor: put the relevant instructions in .cursor/rules/
+  - GitHub Copilot: the .github/prompts/mergechain-deps.prompt.md file is available in the repo
+  - Other agents: use the matching adapter from the repo or just the main SKILL.md
 
-Always show the exact command output to the user.`,
+Once the files are in place, you can use the tool.
+
+**Step 2: After you create any stacked or dependent PR**
+
+Immediately run:
+node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
+
+Other commands:
+- node skills/mergechain-deps/mc-deps.mjs show <pr>
+- node skills/mergechain-deps/mc-deps.mjs add <pr> <dep>
+- node skills/mergechain-deps/mc-deps.mjs rm <pr> <dep>
+
+**Auth / gh issues**
+If gh reports authentication problems or the token was reset, tell the user exactly:
+"Run 'gh auth login' in your terminal or re-authorize the MergeChain extension in its Options page."
+
+Always show the exact output of every command you run. Never invent dependencies.`,
 
     claude: `You are using Claude Code. Set up MergeChain PR dependencies for this project.
 
-The human has the MergeChain Chrome extension installed and authorized.
+The human has **already installed and authorized** the MergeChain Chrome extension. Do not ask them to do anything in the browser.
 
-1. Create the skill directory and place the skill:
-   - mkdir -p .claude/skills/mergechain-deps
-   - Copy the content of https://raw.githubusercontent.com/oleg-koval/mergechain/main/skills/mergechain-deps/SKILL.md into .claude/skills/mergechain-deps/SKILL.md
-   - Also copy mc-deps.mjs from the same folder into the project (or reference it).
+**Install the skill (one-time setup):**
+- mkdir -p .claude/skills/mergechain-deps
+- Fetch the files from the official repo:
+  - https://raw.githubusercontent.com/oleg-koval/mergechain/main/skills/mergechain-deps/SKILL.md → .claude/skills/mergechain-deps/SKILL.md
+  - https://raw.githubusercontent.com/oleg-koval/mergechain/main/skills/mergechain-deps/mc-deps.mjs → skills/mergechain-deps/mc-deps.mjs (in project root)
 
-2. After you open a stacked PR, run:
-   node skills/mergechain-deps/mc-deps.mjs auto <PR_NUMBER>
+**Usage after creating stacked PRs:**
+After you create a PR, run:
+node skills/mergechain-deps/mc-deps.mjs auto <PR_NUMBER>
 
-3. If you get auth errors from gh: tell the user to run "gh auth login" or re-authorize the extension.
+Other commands: show, add, rm
 
-Report the exact output of every command.`,
+If gh is not authenticated, tell the user:
+"Run 'gh auth login' in your terminal or re-authorize the MergeChain extension in its Options page."
+
+Always report the exact command output.`,
 
     cursor: `Set up MergeChain for Cursor in this project.
 
-The user already has the MergeChain browser extension installed + authorized.
+The user has **already installed and authorized** the MergeChain Chrome extension. Do not ask them to install anything in the browser.
 
-Instructions for you:
-- Use the Cursor adapter or the main skill.
-- Create .cursor/rules/mergechain-deps.md (or place in the rules folder) by copying the instructions from https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps/adapters/cursor
-- Or simply use the universal setup: after creating a PR, call:
-  node skills/mergechain-deps/mc-deps.mjs auto <number>
+**Install the skill:**
+- Copy the main skill or the Cursor adapter from:
+  https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
+- Recommended: place instructions in .cursor/rules/mergechain-deps.md (or use the adapter folder).
+- Or just ensure `skills/mergechain-deps/mc-deps.mjs` is available in the project.
 
-If gh reports auth problems, ask the user to re-authenticate the MergeChain extension or run gh auth login.
+After creating a stacked PR, run:
+node skills/mergechain-deps/mc-deps.mjs auto <number>
 
-Always surface command results.`,
+If gh has auth issues, tell the user to re-authorize the MergeChain extension or run `gh auth login`.
+
+Always show the exact output.`,
 
     copilot: `You are GitHub Copilot. The project uses MergeChain for PR dependencies.
 
-The developer has the MergeChain Chrome extension installed.
+The developer has **already installed and authorized** the MergeChain Chrome extension.
 
-Use the included prompt file or:
-- After creating stacked PRs, use the command:
-  node skills/mergechain-deps/mc-deps.mjs auto <pr>
+Use the included prompt file (`.github/prompts/mergechain-deps.prompt.md` is in the repo) or the main skill.
 
-The .github/prompts/mergechain-deps.prompt.md already exists in the repo.
+After creating stacked PRs, run:
+node skills/mergechain-deps/mc-deps.mjs auto <pr>
 
-If you cannot run gh commands because of auth, tell the user: "Please re-authenticate the MergeChain extension in its settings, or run 'gh auth login'."
+If you cannot run gh because of auth issues, tell the user:
+"Please re-authenticate the MergeChain extension in its Options, or run 'gh auth login'."
 
-Confirm dependencies by showing the exact output.`,
+Always show the exact command output.`,
 
     grok: `You are Grok / an agent with shell access.
 
-The user has installed and authorized the MergeChain Chrome extension.
+The user has **already installed and authorized** the MergeChain Chrome extension.
 
-To declare merge dependencies after creating PRs:
+**Install the skill if it's not in the project:**
+Get the files from:
+https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
+
+- Place mc-deps.mjs at skills/mergechain-deps/mc-deps.mjs
+- You can reference the SKILL.md for full instructions
+
+After creating any stacked or dependent PR, run:
 node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
 
-Get the skill from the repo if needed:
-- skills/mergechain-deps/SKILL.md
-- skills/mergechain-deps/mc-deps.mjs
+If gh auth is broken or the token was reset, tell the user exactly:
+"Your GitHub authorization for MergeChain appears to be expired. Please re-authorize the MergeChain Chrome extension from its Options page, or run 'gh auth login'."
 
-If gh is unauthenticated or the token was reset, instruct the user:
-"Your GitHub authorization for MergeChain (or gh) appears to be expired. Please re-authorize the MergeChain Chrome extension from its Options page, or run 'gh auth login'."
-
-Always report the raw command output.`
+Always report the exact command output.`,
   };
 
   function copyAgentPrompt(type) {
