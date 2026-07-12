@@ -11,7 +11,7 @@ merge button greys out until the prerequisite lands.
 > No backend. Dependency data lives inside the PR itself. Your token never
 > leaves your browser. (Not affiliated with or endorsed by GitHub, Inc.)
 
-![MergeChain blocking a pull request](docs/screenshots/01-blocked.png)
+![MergeChain blocking a pull request](https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png)
 
 See the [live demo on mergechain.dev](https://mergechain.dev) for the full interactive experience (including the hero demo).
 
@@ -168,8 +168,8 @@ After an agent runs `auto`:
 - The PR shows the dependency block (same as if you had used the browser UI)
 - Merge button is disabled with clear tooltip
 
-![Blocked PR example](docs/screenshots/01-blocked.png)
-![Chain view](docs/screenshots/04-chain.png)
+![Blocked PR example](https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png)
+![Chain view](https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png)
 
 **Recommended for teams:** Add the `skills/mergechain-deps/` folder to your repo (or at least the script + SKILL.md). Your agents will then automatically handle stacked PR dependencies.
 
