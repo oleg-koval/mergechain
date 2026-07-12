@@ -19,7 +19,7 @@ metadata:
 
 Manage GitHub PR merge dependencies by editing a hidden marker in the PR body using the `gh` CLI. The marker format is byte-identical to the MergeChain browser extension, so changes made here are instantly visible in the UI (and the reverse).
 
-```text
+```
 <!-- pr-merge-deps:{"v":1,"deps":[{"owner":"o","repo":"r","number":91}]} -->
 ```
 
@@ -80,9 +80,7 @@ node skills/mergechain-deps/mc-deps.mjs add 155 143
 
 ### 2. Auto for stacked PRs (most common for multi-PR agents)
 
-**Important:** Require explicit user approval before running remote commands like `auto`, `gh pr create`, or `git push`.
-
-After approval and you (or the agent) push a branch and open a PR:
+After you (or the agent) push a branch and open a PR:
 
 ```bash
 # The script infers the prerequisite from the base branch
@@ -96,11 +94,11 @@ Typical agent loop:
 4. `node skills/mergechain-deps/mc-deps.mjs auto <pr>`
 5. Tell the user: "Declared dependency on #NNN (inferred from base)".
 
-The `auto` command is safe for default cases: if the PR targets default branch or no matching open PR is found, it reports and does nothing. If multiple open PRs share the head branch (ambiguous), it now reports the ambiguity and does nothing (no-op); use explicit `add` instead.
+The `auto` command is safe: if the PR targets default branch or no matching open PR is found, it reports and does nothing.
 
 ### 3. Full multi-PR agent session example
 
-```text
+```
 User: Implement feature X as stacked PRs on top of my auth changes.
 
 Agent:
@@ -131,12 +129,11 @@ Use this **skill** for creation-time automation and agent flows.
 
 After any `add`/`rm`/`auto`:
 - The command prints the new state: `XXX now blocked by [list or nothing]`
-- For same-repo: `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty).
-- For cross-repo: use `gh pr view NNN --repo owner/repo --json body`.
+- `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty).
 - No duplicate entries.
 - Cross-repo refs are preserved correctly.
 
-Note: marker removal uses strip + trim for cleanliness (not strict byte-for-byte preservation of surrounding whitespace).
+Example clean marker removal leaves the rest of the PR body untouched.
 
 ## Safety & Notes
 

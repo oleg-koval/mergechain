@@ -6,6 +6,10 @@
 // vice-versa:
 //   <!-- pr-merge-deps:{"v":1,"deps":[{"owner":"o","repo":"r","number":91}]} -->
 //
+// See the vibrant agent-ready documentation:
+//   skills/mergechain-deps/SKILL.md  (includes adapters for Claude, Cursor,
+//   Copilot, Codex, Grok, Windsurf, Kiro)
+//
 // Commands:
 //   show <pr>                 print the deps declared on <pr>
 //   add  <pr> <dep>           declare <pr> is BLOCKED BY <dep>
@@ -163,6 +167,12 @@ const cmdAuto = (ref) => {
   if (candidates.length === 0) {
     process.stdout.write(
       `${fmt(ref)} is based on "${baseRefName}" but no open PR has that head branch; nothing to infer.\n`,
+    );
+    return;
+  }
+  if (candidates.length > 1) {
+    process.stdout.write(
+      `${fmt(ref)} is based on "${baseRefName}" but multiple open PRs have that head branch (ambiguous); not inferring automatically. Use explicit 'add' instead.\n`,
     );
     return;
   }

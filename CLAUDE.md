@@ -95,3 +95,9 @@ Load `dist/` via `chrome://extensions` → Developer mode → "Load unpacked".
 - Branch off `main`; PRs target `main`.
 - **Never** `git push` or run remote-modifying commands without explicit sign-off.
 - End commit messages with the Co-Authored-By trailer for Claude Code.
+
+## Stacked PRs & the Skill
+
+When creating or reviewing stacked PRs (in this repo or for users of MergeChain), use the terminal skill in `skills/mergechain-deps/`. The `mc-deps.mjs` helper + SKILL.md (with adapters for Claude, Cursor, Copilot, Grok, etc.) writes the same marker the extension understands. 
+
+**Require explicit user approval** before creating a PR or immediately invoking `auto` (or any git push / remote-modifying command). See `skills/mergechain-deps/SKILL.md`.

@@ -2,7 +2,7 @@
 
 All copy is grounded: MergeChain is brand-new with no users yet, so nothing here
 claims traction, benchmarks, or testimonials. Fill the `{{...}}` placeholders
-once the Chrome Web Store listing is live.
+(the Chrome Web Store listing is now live at https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb).
 
 ## Launch angle (one sentence)
 
@@ -42,17 +42,17 @@ it's free.
 GitHub still has no way to say "don't merge this PR until #123 lands." So people
 write a comment and someone merges it anyway. MergeChain fixes that: declare the
 dependency, the merge button greys out until the prerequisite merges. No backend.
-{{store_link}}
+https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 
 **X / Twitter — ex-GitLab**
 Missed GitLab's merge-request dependencies after moving to GitHub? MergeChain
 brings them back: blocked-by / blocks, transitive chains, cross-repo, right in
-the GitHub UI. {{store_link}}
+the GitHub UI. https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 
 **X / Twitter — builder note**
 Built MergeChain: a GitHub PR merge-dependency extension with no backend — deps
 live as a hidden marker in the PR body, token never leaves your browser. MV3,
-functional core, fully tested. {{store_link}}
+functional core, fully tested. https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 
 **LinkedIn**
 If your team stacks pull requests, you've merged one before its dependency at
@@ -60,14 +60,14 @@ least once. GitHub has no native fix; GitLab has had merge-request dependencies
 for years. MergeChain adds them to GitHub: declare "blocked by #123" and the
 merge button stays disabled until the prerequisite lands — across transitive
 chains and even other repos. No backend, your token stays local. Free, link
-below. {{store_link}}
+below. https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 
 **Reddit (r/github, r/programming) — honest**
 I built a Chrome extension that adds GitLab-style merge dependencies to GitHub
 PRs. You mark a PR "blocked by #123" and it disables the merge button until #123
 merges. Honest caveat: it's client-side, so a teammate without the extension can
 still merge — it's a shared nudge, not branch protection. No backend; deps are
-stored in the PR description. Feedback welcome. {{store_link}}
+stored in the PR description. Feedback welcome. https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 
 ## Product Hunt
 
@@ -134,8 +134,7 @@ Never mass-DM. Never post the same copy across threads.
 
 ## Next actions
 
-1. Decide: public launch (repo public + CWS published) or private/internal only.
-2. Record `docs/demo.gif` (the unblock loop) + drop the three screenshots in `docs/`.
-3. Publish the extension; replace `{{store_link}}` everywhere.
-4. Host `PRIVACY.md` at a public URL; finish the `STORE-LISTING.md` checklist.
-5. Pick one primary channel (Show HN _or_ Product Hunt) for day one; don't split focus.
+1. Record `docs/demo.gif` (the unblock loop) + drop the three screenshots in `docs/`.
+2. Extension is published at https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb — update any remaining references if needed.
+3. Host `PRIVACY.md` at a public URL; finish the `STORE-LISTING.md` checklist.
+4. Pick one primary channel (Show HN _or_ Product Hunt) for day one; don't split focus.

@@ -34,6 +34,8 @@ rm docs/screenshots/*.html
 |---|---|---|
 | `demo.gif` | The unblock loop: on a blocked PR, the merge button is grey → merge the dependency PR → return and watch it go green/enabled. ~5-8s, 1280px wide. | README hero, social |
 
+> **Placeholder**: A demo GIF will go here soon. Current screenshot in README gives the idea.
+
 ## Tips
 
 - Use a clean throwaway repo (e.g. `oleg-koval/pr-deps-e2e`) with obvious PR
