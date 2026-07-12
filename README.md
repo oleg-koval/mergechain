@@ -11,15 +11,9 @@ merge button greys out until the prerequisite lands.
 > No backend. Dependency data lives inside the PR itself. Your token never
 > leaves your browser. (Not affiliated with or endorsed by GitHub, Inc.)
 
-**📹 Demo video** *(coming soon)*
+![MergeChain blocking a pull request](docs/screenshots/01-blocked.png)
 
-> **What it will show:**  
-> 1. Open a PR → click "Blocked by" → type `#128`  
-> 2. Merge button turns red + tooltip appears  
-> 3. Merge the blocker PR (#128)  
-> 4. Return to the dependent PR → button turns green and says "Squash and merge"
-
-![MergeChain on a pull request](docs/screenshots/01-blocked.png)
+See the [live demo on mergechain.dev](https://mergechain.dev) for the full interactive experience (including the hero demo).
 
 ## The problem
 
