@@ -186,6 +186,8 @@ See the complete reference: [skills/mergechain-deps/SKILL.md](./skills/mergechai
 
 **From the Chrome Web Store** (recommended): [MergeChain: PR merge dependencies](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb)
 
+See the full site at [mergechain.dev](https://mergechain.dev) (includes direct ZIP download and AI agent skill).
+
 **Download pre-built ZIP** from the [latest GitHub release](https://github.com/oleg-koval/mergechain/releases/latest), extract it, then in Chrome: `chrome://extensions` → **Developer mode** → **Load unpacked** the folder.
 
 **From source:**

@@ -3,17 +3,26 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MergeChain: merge dependencies for GitHub pull requests</title>
-<meta name="description" content="MergeChain adds merge dependencies to GitHub pull requests. Declare that a PR is blocked by another, and its merge button stays disabled until the prerequisite lands. Cross-repo and transitive chains. No backend." />
+<title>MergeChain — GitHub PR Merge Dependencies + AI Agent Skill</title>
+<meta name="description" content="Block GitHub PR merges until dependencies land. Works in the browser + with AI agents (Claude, Cursor, Copilot, Grok). Direct ZIP download from GitHub Releases. No backend — data lives in the PR." />
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="/icon-128.png" />
 <link rel="shortcut icon" href="/favicon.ico" />
-<meta property="og:title" content="MergeChain: merge dependencies for GitHub pull requests" />
-<meta property="og:description" content="Block a PR's merge until the PRs it depends on land. Cross-repo and transitive chains. No backend." />
+<meta property="og:title" content="MergeChain — GitHub PR Merge Dependencies + AI Agent Skill" />
+<meta property="og:description" content="Stop merging PRs out of order. Browser UI + ready-to-paste skill for Claude, Cursor, Copilot, Grok and more. Download the ZIP directly from releases." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://mergechain.dev" />
+<meta property="og:site_name" content="MergeChain" />
 <meta name="twitter:card" content="summary" />
+<meta name="keywords" content="github pr dependencies, stacked prs, merge order, ai agent skill, cursor, claude, copilot, grok" />
+<!-- 
+  Font loading (externalize when ready for more distinction):
+  For a refined technical aesthetic, load a pair like:
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+  Then: --font-sans: 'Work Sans', system-ui, sans-serif; --font-display: 'Space Grotesk', sans-serif;
+  (Avoids reflex monoculture; Work Sans for body readability, Space Grotesk for precise display.)
+-->
 <!-- Google Analytics (GA4). Replace G-XXXXXXXXXX with your Measurement ID. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
@@ -35,9 +44,30 @@
     --blocked: #f85149;
     --merged: #a371f7;
     --ready: #3fb950;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
     --maxw: 900px;
+
+    /* Fluid type scale for marketing (clamp for responsive) */
+    --fs-xs: 0.75rem;
+    --fs-sm: 0.875rem;
+    --fs-base: 1rem;
+    --fs-lg: clamp(1rem, 1.1vw, 1.125rem);
+    --fs-xl: clamp(1.125rem, 1.3vw, 1.25rem);
+    --fs-2xl: clamp(1.5rem, 2vw, 1.75rem);
+    --fs-3xl: clamp(2rem, 3vw, 2.5rem);
+    --fs-4xl: clamp(2.5rem, 4vw, 3.5rem);
+
+    /* Spacing scale (4pt base) */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
@@ -46,14 +76,20 @@
     background: var(--ground);
     color: var(--text);
     font-family: var(--font-sans);
-    line-height: 1.6;
-    font-size: 17px;
+    line-height: 1.5;
+    font-size: var(--fs-base);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* Headings - fluid, strong hierarchy */
+  h1 { font-size: var(--fs-4xl); line-height: 1.05; letter-spacing: -0.03em; font-weight: 700; }
+  h2 { font-size: var(--fs-3xl); line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; }
+  h3 { font-size: var(--fs-xl); line-height: 1.3; font-weight: 600; }
 
   .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
@@ -74,47 +110,53 @@
     pointer-events: none;
   }
   .hero .wrap { position: relative; z-index: 1; }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: var(--space-8);
+    align-items: start;
+  }
+  .hero-text { padding-top: var(--space-6); } /* offset for asymmetry */
+  .demo { margin-top: var(--space-2); } /* slight offset */
+
+  @media (max-width: 720px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+    .hero-text { padding-top: 0; }
+    .demo { margin-top: 0; }
+  }
   .eyebrow {
-    font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--muted); margin: 0 0 18px;
   }
-  h1 {
-    font-size: clamp(34px, 6vw, 54px); line-height: 1.05; letter-spacing: -0.025em;
-    margin: 0 0 20px; text-wrap: balance; font-weight: 700;
-  }
   h1 .hl { color: var(--blocked); }
-  .lede { font-size: clamp(17px, 2.4vw, 20px); color: var(--muted); max-width: 60ch; margin: 0 0 30px; }
-  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .lede { font-size: var(--fs-lg); color: var(--muted); max-width: 60ch; margin: 0 0 30px; line-height: 1.4; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
   .btn {
-    display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px;
-    padding: 11px 18px; border-radius: 8px; border: 1px solid transparent; cursor: pointer;
+    display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; font-size: var(--fs-sm);
+    padding: var(--space-3) var(--space-5); border-radius: 8px; border: 1px solid transparent; cursor: pointer;
+    transition: all 0.1s ease;
   }
   .btn--primary { background: var(--accent); color: #fff; }
-  .btn--primary:hover { background: #4293ff; text-decoration: none; }
+  .btn--primary:hover { background: #4293ff; text-decoration: none; transform: translateY(-1px); }
   .btn--ghost { border-color: var(--border); color: var(--text); background: transparent; }
   .btn--ghost:hover { border-color: var(--muted); text-decoration: none; }
-  .cta-note { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+  .cta-note { font-size: var(--fs-xs); color: var(--muted); font-family: var(--font-mono); }
 
-  /* PR demo card */
-  .demo { margin: 46px 0 8px; }
-  .card {
-    border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2);
-    box-shadow: 0 20px 60px rgba(1,4,9,.5); overflow: hidden;
-  }
-  .card__top { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-muted); background: var(--surface); }
-  .card__top .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--border); }
-  .card__top .path { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin-left: 4px; }
-  .card__body { padding: 20px; }
+  /* Engineering drawing / schematic treatment for demo (full treatment below) */
 
   /* dependency block (mirrors the extension) */
-  .block { display: flex; border: 1px solid var(--blocked); border-radius: 8px; overflow: hidden; }
+  .block { display: flex; border: 1px solid var(--blocked); border-radius: 6px; overflow: hidden; }
   .block.is-clear { border-color: var(--border); }
-  .block__rail { width: 46px; flex-shrink: 0; display: flex; justify-content: center; padding-top: 15px; background: var(--surface); border-right: 1px solid var(--border-muted); color: var(--blocked); }
+  .block__rail { width: 42px; flex-shrink: 0; display: flex; justify-content: center; padding-top: 13px; background: var(--surface); border-right: 1px solid var(--border-muted); color: var(--blocked); }
   .block.is-clear .block__rail { color: var(--muted); }
-  .block__main { flex: 1; min-width: 0; padding: 14px 16px; background: var(--surface); }
+  .block__main { flex: 1; min-width: 0; padding: var(--space-3) var(--space-4); background: var(--surface); }
   .block__head { display: flex; align-items: center; gap: 10px; }
-  .block__head .block-title { font-size: 14px; margin: 0; font-weight: 600; }
-  .pill { margin-left: auto; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+  .block__head .block-title { font-size: var(--fs-sm); margin: 0; font-weight: 600; }
+  .pill { margin-left: auto; font-size: var(--fs-xs); font-weight: 600; padding: 2px 10px; border-radius: 999px; }
   .pill.is-blocked { background: #da3633; color: #fff; }
   .pill.is-ready { background: #238636; color: #fff; display: none; }
   .block.is-clear .pill.is-blocked { display: none; }
@@ -128,57 +170,138 @@
   .dep-row .ref { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
   .dep-row .title { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .merge-area { margin-top: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .merge-area { margin-top: var(--space-5); display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
   .merge-btn {
-    font-weight: 600; font-size: 15px; padding: 11px 18px; border-radius: 8px; border: 1px solid transparent;
+    font-weight: 600; font-size: var(--fs-sm); padding: var(--space-3) var(--space-5); border-radius: 6px; border: 1px solid transparent;
     background: #da3633; color: #fff; cursor: not-allowed;
   }
   .is-clear ~ .merge-area .merge-btn,
   .merge-area .merge-btn.is-ok { background: #238636; cursor: pointer; }
   .toggle {
-    display: inline-flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--muted);
-    background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--fs-xs); color: var(--muted);
+    background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: var(--space-2) var(--space-3); cursor: pointer;
     font-family: var(--font-mono);
   }
   .toggle:hover { border-color: var(--muted); color: var(--text); }
 
   /* Sections */
-  section { padding: 56px 0; border-top: 1px solid var(--border-muted); }
-  .sec-eyebrow { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
-  h2 { font-size: clamp(24px, 4vw, 32px); letter-spacing: -0.02em; margin: 0 0 28px; text-wrap: balance; }
+  section { padding: var(--space-12) 0; border-top: 1px solid var(--border-muted); }
+  .sec-eyebrow { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  /* h2 already defined above */
 
-  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .feature { border: 1px solid var(--border); border-radius: 12px; padding: 22px; background: var(--surface); }
-  .feature .ico { color: var(--accent); margin-bottom: 12px; display: inline-flex; }
-  .feature h3 { font-size: 16px; margin: 0 0 8px; }
-  .feature p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+  .feature { border: 1px solid var(--border); border-radius: 6px; padding: var(--space-5); background: var(--surface); }
+  .feature .ico { color: var(--accent); margin-bottom: var(--space-2); display: inline-flex; }
+  .feature h3 { font-size: var(--fs-base); margin: 0 0 var(--space-2); font-weight: 600; }
+  .feature p { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: 1.45; }
 
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
-  .step { position: relative; padding-top: 46px; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); counter-reset: step; }
+  .step { position: relative; padding-top: var(--space-8); }
   .step::before {
     counter-increment: step; content: counter(step, decimal-leading-zero);
-    position: absolute; top: 0; left: 0; font-family: var(--font-mono); font-size: 13px; font-weight: 600;
-    color: var(--accent); border: 1px solid var(--border); border-radius: 8px; padding: 5px 9px;
+    position: absolute; top: 0; left: 0; font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 600;
+    color: var(--accent); border: 1px solid var(--border); border-radius: 6px; padding: var(--space-1) var(--space-2);
   }
-  .step h3 { font-size: 16px; margin: 0 0 6px; }
-  .step p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  .step h3 { font-size: var(--fs-lg); margin: 0 0 var(--space-2); }
+  .step p { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: 1.5; }
   .step code { font-family: var(--font-mono); font-size: 13px; background: var(--surface); border: 1px solid var(--border-muted); border-radius: 5px; padding: 1px 6px; color: var(--text); }
 
-  .install ol { margin: 0; padding-left: 20px; color: var(--muted); }
-  .install li { margin-bottom: 10px; }
-  .install code { font-family: var(--font-mono); font-size: 13px; background: var(--surface); border: 1px solid var(--border-muted); border-radius: 5px; padding: 1px 6px; color: var(--text); }
+  .install ol { margin: 0; padding-left: var(--space-5); color: var(--muted); font-size: var(--fs-sm); }
+  .install li { margin-bottom: var(--space-4); line-height: 1.5; }
+  .install code { font-family: var(--font-mono); font-size: var(--fs-xs); background: var(--surface); border: 1px solid var(--border-muted); border-radius: 4px; padding: 1px 4px; color: var(--text); }
 
   /* Footer */
-  footer { border-top: 1px solid var(--border-muted); padding: 40px 0 60px; color: var(--muted); font-size: 14px; }
-  .foot { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; }
+  footer { border-top: 1px solid var(--border-muted); padding: var(--space-8) 0 var(--space-12); color: var(--muted); font-size: var(--fs-sm); }
+  .foot { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-6); align-items: center; }
   .foot .grow { flex: 1; }
-  .foot a { color: var(--muted); }
+  .foot a { color: var(--muted); font-size: var(--fs-xs); }
   .foot a:hover { color: var(--text); }
-  .disclaimer { margin-top: 18px; font-size: 12.5px; color: var(--muted); max-width: 60ch; }
+  .disclaimer { margin-top: var(--space-4); font-size: var(--fs-xs); color: var(--muted); max-width: 60ch; line-height: 1.4; }
+
+  /* Engineering drawing / schematic treatment for demo */
+  .demo-schematic {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface-2);
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .demo-schematic::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(to right, transparent 0, transparent 19px, rgba(255,255,255,0.035) 20px, rgba(255,255,255,0.035) 21px),
+      repeating-linear-gradient(to bottom, transparent 0, transparent 19px, rgba(255,255,255,0.035) 20px, rgba(255,255,255,0.035) 21px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .demo-label {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    background: var(--ground);
+    padding: 1px 4px;
+    border: 1px solid var(--accent);
+    border-radius: 1px;
+    white-space: nowrap;
+    z-index: 2;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+  .demo-label.top { top: 4px; left: 6px; }
+  .demo-label.rail { top: 50%; left: -1px; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
+  .demo-label.block { top: 4px; right: 6px; }
+  .demo-label.merge { bottom: 4px; right: 6px; }
+
+  .demo-schematic .card {
+    position: relative;
+    z-index: 1;
+    border: 1px dashed var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    box-shadow: none;
+  }
+
+  .demo-schematic .card__top {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border-muted);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 9px;
+  }
+
+  .demo-schematic .card__top .dot { width: 5px; height: 5px; border-radius: 1px; background: var(--border); }
+  .demo-schematic .card__top .path { color: var(--muted); font-size: 8px; }
+
+  .demo-schematic .card__body { padding: 8px 10px; position: relative; }
 
   @media (max-width: 720px) {
-    .features, .steps { grid-template-columns: 1fr; }
+    .features, .steps { grid-template-columns: 1fr; gap: var(--space-5); }
     .bar nav { display: none; }
+
+    .hero { padding: var(--space-8) 0 var(--space-6); }
+    .hero-grid { gap: var(--space-5); grid-template-columns: 1fr; }
+    .hero-text { padding-top: 0; order: 2; }
+    .demo { order: 1; margin-top: 0; }
+    .lede { font-size: var(--fs-base); }
+    .cta-row { flex-direction: column; align-items: stretch; }
+    .cta-row .btn { width: 100%; justify-content: center; }
+    .cta-row .cta-note { text-align: center; }
+
+    .card__top { padding: var(--space-2); font-size: 11px; }
+    .card__body { padding: var(--space-3); }
+
+    .install ol { padding-left: var(--space-4); }
+    .install li { font-size: var(--fs-sm); }
+
+    .demo { margin-top: var(--space-2); }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
@@ -198,7 +321,7 @@
       <a href="#install">Install</a>
       <a href="#agents">AI Agents</a>
       <a href="https://github.com/oleg-koval/mergechain">GitHub</a>
-      <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps">Skill</a>
+      <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps" target="_blank" rel="noopener">AI Skill</a>
     </nav>
   </div>
 </header>
@@ -206,66 +329,78 @@
 <main>
   <section class="hero" style="border-top:none">
     <div class="wrap">
-      <p class="eyebrow">Chrome extension for GitHub pull requests</p>
-      <h1>
-        <img src="icon-32.png" width="28" height="28" alt="" style="vertical-align: -4px; margin-right: 8px; border-radius: 4px;">
-        Stop merging pull requests <span class="hl">out of order.</span>
-      </h1>
-      <p class="lede">MergeChain adds merge dependencies to GitHub PRs. Say a PR is <em>blocked by</em> another, and its merge button stays disabled until the prerequisite lands. Works great with humans <em>and</em> AI coding agents (Claude, Cursor, Copilot, Grok…).</p>
-      <div class="cta-row">
-        <a class="btn btn--primary" href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Zm4.47-4.53a.75.75 0 0 0 1.06 0l3-3a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L8.75 7.44V1.75a.75.75 0 0 0-1.5 0v5.69L5.28 5.47a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042Z"/></svg>
-          Add to Chrome
-        </a>
-        <a class="btn btn--ghost" href="https://github.com/oleg-koval/mergechain">View source</a>
-        <span class="cta-note">Free • No account required • Open source</span>
-      </div>
-      <p style="margin: 12px 0 0; font-size: 13px;">
-        <a href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Also available on the Chrome Web Store →</a>
-        &nbsp;·&nbsp;
-        <a href="https://github.com/oleg-koval/mergechain" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">⭐ Star on GitHub</a>
-        &nbsp;·&nbsp;
-        <a href="https://github.com/oleg-koval/mergechain/releases/latest" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Download ZIP</a>
-      </p>
-
-      <div class="demo">
-        <div class="card">
-          <div class="card__top">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="path">github.com/acme/api/pull/143</span>
+      <div class="hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">Chrome extension for GitHub pull requests</p>
+          <h1>
+            <img src="icon-32.png" width="28" height="28" alt="" style="vertical-align: -4px; margin-right: 8px; border-radius: 4px;">
+            Stop merging pull requests <span class="hl">out of order.</span>
+          </h1>
+          <p class="lede">MergeChain adds merge dependencies to GitHub PRs. Say a PR is <em>blocked by</em> another, and its merge button stays disabled until the prerequisite lands. Works great with humans <em>and</em> AI coding agents (Claude, Cursor, Copilot, Grok…). Get it from the Chrome Web Store or download the ZIP directly.</p>
+          <div class="cta-row">
+            <a class="btn btn--primary" href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Zm4.47-4.53a.75.75 0 0 0 1.06 0l3-3a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L8.75 7.44V1.75a.75.75 0 0 0-1.5 0v5.69L5.28 5.47a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042Z"/></svg>
+              Add to Chrome
+            </a>
+            <a class="btn btn--ghost" href="https://github.com/oleg-koval/mergechain">View source</a>
+            <span class="cta-note">Free • No account required • Open source</span>
           </div>
-          <div class="card__body">
-            <div class="block" id="block">
-              <div class="block__rail">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
-              </div>
-              <div class="block__main">
-                <div class="block__head">
-                  <span class="block-title">PR Dependencies</span>
-                  <span class="pill is-blocked">Blocked</span>
-                  <span class="pill is-ready">Ready</span>
-                </div>
-                <div class="summary" id="summary">
-                  <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575ZM8 5a.75.75 0 0 0-.75.75v2.5a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8 5Zm1 6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"/></svg>
-                  <span id="summary-text">Blocked by 1 pull request that must merge first</span>
-                </div>
-                <div class="dep-row" id="dep">
-                  <span class="ico" id="dep-ico">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
-                  </span>
-                  <span class="ref">acme/db#128</span>
-                  <span class="title">Add migration for order tables</span>
-                </div>
-              </div>
-            </div>
+          <p style="margin: var(--space-3) 0 0; font-size: var(--fs-xs); display: flex; gap: var(--space-2); flex-wrap: wrap;">
+            <a href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Chrome Web Store</a>
+            <span style="color: var(--border-muted);">·</span>
+            <a href="https://github.com/oleg-koval/mergechain/releases/latest" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Download ZIP</a>
+            <span style="color: var(--border-muted);">·</span>
+            <a href="https://github.com/oleg-koval/mergechain" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">GitHub + AI Skill</a>
+          </p>
+        </div>
 
-            <div class="merge-area">
-              <button class="merge-btn" id="merge" aria-live="polite" disabled>Waiting on deps</button>
-              <button class="toggle" id="toggle" type="button">▶ Merge the blocker (#128)</button>
+        <div class="demo">
+          <div class="demo-schematic">
+            <!-- CAD-style overlaid labels -->
+            <div class="demo-label top">PR #143</div>
+            <div class="demo-label rail">DEP RAIL</div>
+            <div class="demo-label block">BLOCKED</div>
+            <div class="demo-label merge">MERGE GATE</div>
+
+            <div class="card">
+              <div class="card__top">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="path">github.com/acme/api/pull/143</span>
+              </div>
+              <div class="card__body">
+                <div class="block" id="block">
+                  <div class="block__rail">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
+                  </div>
+                  <div class="block__main">
+                    <div class="block__head">
+                      <span class="block-title">PR Dependencies</span>
+                      <span class="pill is-blocked">Blocked</span>
+                      <span class="pill is-ready">Ready</span>
+                    </div>
+                    <div class="summary" id="summary">
+                      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575ZM8 5a.75.75 0 0 0-.75.75v2.5a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8 5Zm1 6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"/></svg>
+                      <span id="summary-text">Blocked by 1 pull request that must merge first</span>
+                    </div>
+                    <div class="dep-row" id="dep">
+                      <span class="ico" id="dep-ico">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
+                      </span>
+                      <span class="ref">acme/db#128</span>
+                      <span class="title">Add migration for order tables</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="merge-area">
+                  <button class="merge-btn" id="merge" aria-live="polite" disabled>Waiting on deps</button>
+                  <button class="toggle" id="toggle" type="button">▶ Merge the blocker (#128)</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </div> <!-- /hero-grid -->
     </div>
   </section>
 
@@ -325,11 +460,11 @@
         </li>
         <li>
           <a class="btn btn--ghost" href="https://github.com/oleg-koval/mergechain/releases/latest" target="_blank" rel="noopener" style="padding: 4px 10px; font-size: 12px; margin-bottom: 2px;">Download ZIP</a>
-          from the latest GitHub release, extract, then <strong>Load unpacked</strong> in <code>chrome://extensions</code> (Developer mode).
-          <span style="display:block; margin-top:2px; font-size:12px; color:var(--muted);">Useful for sideloading the exact release build.</span>
+          from GitHub Releases → extract → <strong>Load unpacked</strong> (Developer mode).
+          <span style="display:block; margin-top:2px; font-size:12px; color:var(--muted);">Same build attached to every release. Great for sideloading or air-gapped use.</span>
         </li>
-        <li>Or build from source yourself (see README).</li>
-        <li>Open the extension’s Options and sign in with GitHub (device flow, or a fine-grained token with Pull requests: read &amp; write).</li>
+        <li>Or build from source (see README on GitHub).</li>
+        <li>Open the extension’s Options and sign in with GitHub (device flow or fine-grained PAT with PR read/write).</li>
       </ol>
     </div>
   </section>
@@ -340,13 +475,13 @@
       <h2>Easy integration for Claude, Cursor, Copilot, Grok &amp; more</h2>
       <p style="max-width: 65ch; color: var(--muted);">
         Let your agent automatically declare merge dependencies when creating stacked PRs.
-        The skill writes the exact same marker as the browser extension.
-        Popular with teams that ship features as a series of small PRs using AI assistants.
+        The skill writes the exact same marker as the browser extension so humans see it too.
+        Works with Claude, Cursor, Copilot, Grok and more. Copy the prompt below or grab the full skill from GitHub.
       </p>
 
-      <div style="margin: 24px 0;">
-        <strong style="display:block; margin-bottom:8px;">1. Universal prompt — paste into any agent</strong>
-        <pre style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px; font-size:13px; overflow:auto; line-height:1.45;"><code>You have the MergeChain PR dependency skill.
+      <div style="margin: var(--space-6) 0;">
+        <strong style="display:block; margin-bottom: var(--space-2); font-size: var(--fs-sm); font-family: var(--font-mono); letter-spacing: 0.05em;">1. Universal prompt — paste into any agent</strong>
+        <pre style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding: var(--space-4); font-size: var(--fs-sm); overflow:auto; line-height:1.5; font-family: var(--font-mono);"><code>You have the MergeChain PR dependency skill.
 
 After you create a PR (especially stacked ones), run:
 node skills/mergechain-deps/mc-deps.mjs auto &lt;pr-number&gt;
@@ -359,34 +494,34 @@ Other commands:
 Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</code></pre>
       </div>
 
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 20px;">
-        <div>
-          <strong>Claude Code</strong>
-          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); margin-top: var(--space-4);">
+        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
+          <strong style="font-size: var(--fs-sm);">Claude Code</strong>
+          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
             <li>Copy <code>skills/mergechain-deps/</code> into your project</li>
             <li>Place <code>SKILL.md</code> at <code>.claude/skills/mergechain-deps/SKILL.md</code></li>
             <li>Or paste the Universal prompt above</li>
           </ul>
         </div>
-        <div>
-          <strong>Cursor</strong>
-          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
+          <strong style="font-size: var(--fs-sm);">Cursor</strong>
+          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
             <li>Use <code>skills/mergechain-deps/adapters/cursor/</code></li>
             <li>Add to <code>.cursor/rules/</code> or project rules</li>
             <li>Paste the Universal prompt</li>
           </ul>
         </div>
-        <div>
-          <strong>GitHub Copilot</strong>
-          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
+          <strong style="font-size: var(--fs-sm);">GitHub Copilot</strong>
+          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
             <li><code>.github/prompts/mergechain-deps.prompt.md</code> is included</li>
             <li>Copilot picks it up automatically</li>
             <li>Or paste the Universal prompt in custom instructions</li>
           </ul>
         </div>
-        <div>
-          <strong>Grok, Windsurf, Kiro, Codex</strong>
-          <ul style="margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);">
+        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
+          <strong style="font-size: var(--fs-sm);">Grok, Windsurf, Kiro, Codex</strong>
+          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
             <li>Paste the Universal prompt into context or rules</li>
             <li>Use the matching adapter in <code>skills/mergechain-deps/adapters/</code></li>
             <li>Ensure <code>gh</code> + Node are available to the agent</li>
@@ -395,24 +530,24 @@ Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</cod
       </div>
 
       <p style="margin-top: 20px; font-size:14px;">
-        Full details + all adapters: 
-        <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps/SKILL.md" target="_blank" rel="noopener">skills/mergechain-deps/SKILL.md</a>
+        Full details + adapters for Claude, Cursor, Copilot, Grok and more: 
+        <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps" target="_blank" rel="noopener">skills/mergechain-deps on GitHub</a>
       </p>
 
-      <p style="margin-top:16px; font-size:13px; color:var(--muted);">
+      <p style="margin-top: var(--space-4); font-size: var(--fs-xs); color:var(--muted);">
         Works great with: <strong>Claude Code • Cursor • GitHub Copilot • Grok • Windsurf • Kiro</strong> and any agent that can run shell commands.
       </p>
 
-      <div style="margin-top: 28px;">
-        <strong style="display:block; margin-bottom: 10px; font-size:14px;">What it looks like after an agent declares a dependency</strong>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <div style="flex:1; min-width: 220px;">
-            <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png" alt="Blocked PR after agent declares dep" style="width:100%; border-radius:6px; border:1px solid var(--border);">
-            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Merge button blocked (agent used <code>auto</code>)</div>
+      <div style="margin-top: var(--space-8);">
+        <strong style="display:block; margin-bottom: var(--space-3); font-size: var(--fs-sm); font-family: var(--font-mono); letter-spacing: 0.05em;">What it looks like after an agent declares a dependency</strong>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-4);">
+          <div>
+            <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png" alt="Blocked PR after agent declares dep" style="width:100%; border-radius:4px; border:1px solid var(--border); display:block;">
+            <div style="font-size: var(--fs-xs); color:var(--muted); margin-top: var(--space-2);">Merge button blocked (agent used <code>auto</code>)</div>
           </div>
-          <div style="flex:1; min-width: 220px;">
-            <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png" alt="Transitive chain view" style="width:100%; border-radius:6px; border:1px solid var(--border);">
-            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Transitive chain visible to the whole team</div>
+          <div>
+            <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png" alt="Transitive chain view" style="width:100%; border-radius:4px; border:1px solid var(--border); display:block;">
+            <div style="font-size: var(--fs-xs); color:var(--muted); margin-top: var(--space-2);">Transitive chain visible to the whole team</div>
           </div>
         </div>
       </div>
@@ -423,8 +558,8 @@ Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</cod
 <footer>
   <div class="wrap">
     <div class="foot">
-      <span class="brand" style="font-size:15px">
-        <img src="icon-32.png" width="18" height="18" alt="" style="border-radius: 3px;">
+      <span class="brand" style="font-size: var(--fs-sm);">
+        <img src="icon-32.png" width="16" height="16" alt="" style="border-radius: 3px;">
         MergeChain
       </span>
       <span class="grow"></span>
