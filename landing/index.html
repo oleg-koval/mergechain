@@ -111,22 +111,21 @@
   }
   .hero .wrap { position: relative; z-index: 1; }
 
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.6fr;
-    gap: var(--space-8);
-    align-items: start;
+  /* Simpler, cleaner hero composition */
+  .hero-content {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: left;
   }
-  .hero-text { padding-top: var(--space-6); } /* offset for asymmetry */
-  .demo { margin-top: var(--space-2); } /* slight offset */
+
+  .demo {
+    max-width: 620px;
+    margin: 32px auto 0;
+  }
 
   @media (max-width: 720px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-      gap: var(--space-6);
-    }
-    .hero-text { padding-top: 0; }
-    .demo { margin-top: 0; }
+    .hero-content { max-width: 100%; }
+    .demo { margin: 24px 0 0; max-width: 100%; }
   }
   .eyebrow {
     font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.08em; text-transform: uppercase;
@@ -146,7 +145,7 @@
   .btn--ghost:hover { border-color: var(--muted); text-decoration: none; }
   .cta-note { font-size: var(--fs-xs); color: var(--muted); font-family: var(--font-mono); }
 
-  /* Engineering drawing / schematic treatment for demo (full treatment below) */
+  /* Clean demo preview — realistic GitHub + extension UI mock */
 
   /* dependency block (mirrors the extension) */
   .block { display: flex; border: 1px solid var(--blocked); border-radius: 6px; overflow: hidden; }
@@ -218,78 +217,43 @@
   .foot a:hover { color: var(--text); }
   .disclaimer { margin-top: var(--space-4); font-size: var(--fs-xs); color: var(--muted); max-width: 60ch; line-height: 1.4; }
 
-  /* Engineering drawing / schematic treatment for demo */
-  .demo-schematic {
-    position: relative;
+  /* Clean, realistic demo preview */
+  .demo {
     border: 1px solid var(--border);
-    border-radius: 2px;
+    border-radius: 8px;
     background: var(--surface-2);
     overflow: hidden;
-    box-shadow: none;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.4);
   }
 
-  .demo-schematic::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-      repeating-linear-gradient(to right, transparent 0, transparent 19px, rgba(255,255,255,0.035) 20px, rgba(255,255,255,0.035) 21px),
-      repeating-linear-gradient(to bottom, transparent 0, transparent 19px, rgba(255,255,255,0.035) 20px, rgba(255,255,255,0.035) 21px);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .demo-label {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.5px;
-    color: var(--accent);
-    background: var(--ground);
-    padding: 1px 4px;
-    border: 1px solid var(--accent);
-    border-radius: 1px;
-    white-space: nowrap;
-    z-index: 2;
-    opacity: 0.8;
-    pointer-events: none;
-  }
-  .demo-label.top { top: 4px; left: 6px; }
-  .demo-label.rail { top: 50%; left: -1px; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
-  .demo-label.block { top: 4px; right: 6px; }
-  .demo-label.merge { bottom: 4px; right: 6px; }
-
-  .demo-schematic .card {
-    position: relative;
-    z-index: 1;
-    border: 1px dashed var(--border);
-    border-radius: 2px;
+  .demo .card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
     background: var(--surface);
+    margin: 12px;
     box-shadow: none;
   }
 
-  .demo-schematic .card__top {
-    display: flex; align-items: center; gap: 4px;
-    padding: 4px 6px;
+  .demo .card__top {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px;
     border-bottom: 1px solid var(--border-muted);
     background: var(--surface-2);
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 11px;
+    color: var(--muted);
   }
 
-  .demo-schematic .card__top .dot { width: 5px; height: 5px; border-radius: 1px; background: var(--border); }
-  .demo-schematic .card__top .path { color: var(--muted); font-size: 8px; }
+  .demo .card__top .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .demo .card__top .path { color: var(--muted); }
 
-  .demo-schematic .card__body { padding: 8px 10px; position: relative; }
+  .demo .card__body { padding: 12px 14px; }
 
   @media (max-width: 720px) {
     .features, .steps { grid-template-columns: 1fr; gap: var(--space-5); }
     .bar nav { display: none; }
 
     .hero { padding: var(--space-8) 0 var(--space-6); }
-    .hero-grid { gap: var(--space-5); grid-template-columns: 1fr; }
-    .hero-text { padding-top: 0; order: 2; }
-    .demo { order: 1; margin-top: 0; }
     .lede { font-size: var(--fs-base); }
     .cta-row { flex-direction: column; align-items: stretch; }
     .cta-row .btn { width: 100%; justify-content: center; }
@@ -300,8 +264,6 @@
 
     .install ol { padding-left: var(--space-4); }
     .install li { font-size: var(--fs-sm); }
-
-    .demo { margin-top: var(--space-2); }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
@@ -329,78 +291,70 @@
 <main>
   <section class="hero" style="border-top:none">
     <div class="wrap">
-      <div class="hero-grid">
-        <div class="hero-text">
-          <p class="eyebrow">Chrome extension for GitHub pull requests</p>
-          <h1>
-            <img src="icon-32.png" width="28" height="28" alt="" style="vertical-align: -4px; margin-right: 8px; border-radius: 4px;">
-            Stop merging pull requests <span class="hl">out of order.</span>
-          </h1>
-          <p class="lede">MergeChain adds merge dependencies to GitHub PRs. Say a PR is <em>blocked by</em> another, and its merge button stays disabled until the prerequisite lands. Works great with humans <em>and</em> AI coding agents (Claude, Cursor, Copilot, Grok…). Get it from the Chrome Web Store or download the ZIP directly.</p>
-          <div class="cta-row">
-            <a class="btn btn--primary" href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Zm4.47-4.53a.75.75 0 0 0 1.06 0l3-3a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L8.75 7.44V1.75a.75.75 0 0 0-1.5 0v5.69L5.28 5.47a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042Z"/></svg>
-              Add to Chrome
-            </a>
-            <a class="btn btn--ghost" href="https://github.com/oleg-koval/mergechain">View source</a>
-            <span class="cta-note">Free • No separate account required • Open source</span>
-          </div>
-          <p style="margin: var(--space-3) 0 0; font-size: var(--fs-xs); display: flex; gap: var(--space-2); flex-wrap: wrap;">
-            <a href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Chrome Web Store</a>
-            <span style="color: var(--border-muted);">·</span>
-            <a href="https://github.com/oleg-koval/mergechain/releases/latest" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Download ZIP</a>
-            <span style="color: var(--border-muted);">·</span>
-            <a href="https://github.com/oleg-koval/mergechain" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">GitHub + AI Skill</a>
-          </p>
+      <div class="hero-content">
+        <p class="eyebrow">Chrome extension for GitHub pull requests</p>
+        <h1>
+          Stop merging pull requests <span class="hl">out of order.</span>
+        </h1>
+        <p class="lede">MergeChain adds merge dependencies to GitHub PRs. Say a PR is <em>blocked by</em> another, and its merge button stays disabled until the prerequisite lands. Works great with humans <em>and</em> AI coding agents (Claude, Cursor, Copilot, Grok…). Get it from the Chrome Web Store or download the ZIP directly.</p>
+
+        <div class="cta-row">
+          <a class="btn btn--primary" href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Zm4.47-4.53a.75.75 0 0 0 1.06 0l3-3a.751.751 0 0 0-.018-1.042.751.751 0 0 0-1.042-.018L8.75 7.44V1.75a.75.75 0 0 0-1.5 0v5.69L5.28 5.47a.751.751 0 0 0-1.042.018.751.751 0 0 0-.018 1.042Z"/></svg>
+            Add to Chrome
+          </a>
+          <a class="btn btn--ghost" href="https://github.com/oleg-koval/mergechain">View source</a>
+          <span class="cta-note">Free • No separate account required • Open source</span>
         </div>
 
+        <p style="margin: var(--space-3) 0 0; font-size: var(--fs-xs); display: flex; gap: var(--space-2); flex-wrap: wrap;">
+          <a href="https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Chrome Web Store</a>
+          <span style="color: var(--border-muted);">·</span>
+          <a href="https://github.com/oleg-koval/mergechain/releases/latest" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">Download ZIP</a>
+          <span style="color: var(--border-muted);">·</span>
+          <a href="https://github.com/oleg-koval/mergechain" target="_blank" rel="noopener" style="color: var(--muted); text-decoration: none;">GitHub + AI Skill</a>
+        </p>
+
+        <!-- Clean demo preview -->
         <div class="demo">
-          <div class="demo-schematic">
-            <!-- CAD-style overlaid labels -->
-            <div class="demo-label top">PR #143</div>
-            <div class="demo-label rail">DEP RAIL</div>
-            <div class="demo-label block">BLOCKED</div>
-            <div class="demo-label merge">MERGE GATE</div>
-
-            <div class="card">
-              <div class="card__top">
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                <span class="path">github.com/acme/api/pull/143</span>
+          <div class="card">
+            <div class="card__top">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="path">github.com/acme/api/pull/143</span>
+            </div>
+            <div class="card__body">
+              <div class="block" id="block">
+                <div class="block__rail">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
+                </div>
+                <div class="block__main">
+                  <div class="block__head">
+                    <span class="block-title">PR Dependencies</span>
+                    <span class="pill is-blocked">Blocked</span>
+                    <span class="pill is-ready">Ready</span>
+                  </div>
+                  <div class="summary" id="summary">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575ZM8 5a.75.75 0 0 0-.75.75v2.5a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8 5Zm1 6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"/></svg>
+                    <span id="summary-text">Blocked by 1 pull request that must merge first</span>
+                  </div>
+                  <div class="dep-row" id="dep">
+                    <span class="ico" id="dep-ico">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
+                    </span>
+                    <span class="ref">acme/db#128</span>
+                    <span class="title">Add migration for order tables</span>
+                  </div>
+                </div>
               </div>
-              <div class="card__body">
-                <div class="block" id="block">
-                  <div class="block__rail">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
-                  </div>
-                  <div class="block__main">
-                    <div class="block__head">
-                      <span class="block-title">PR Dependencies</span>
-                      <span class="pill is-blocked">Blocked</span>
-                      <span class="pill is-ready">Ready</span>
-                    </div>
-                    <div class="summary" id="summary">
-                      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575ZM8 5a.75.75 0 0 0-.75.75v2.5a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8 5Zm1 6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Z"/></svg>
-                      <span id="summary-text">Blocked by 1 pull request that must merge first</span>
-                    </div>
-                    <div class="dep-row" id="dep">
-                      <span class="ico" id="dep-ico">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.25a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25Zm5.677-.177L9.573.677A.25.25 0 0 1 10 .854V2.5h1A2.5 2.5 0 0 1 13.5 5v5.628a2.251 2.251 0 1 1-1.5 0V5a1 1 0 0 0-1-1h-1v1.646a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354ZM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm0 9.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Zm8.25.75a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Z"/></svg>
-                      </span>
-                      <span class="ref">acme/db#128</span>
-                      <span class="title">Add migration for order tables</span>
-                    </div>
-                  </div>
-                </div>
 
-                <div class="merge-area">
-                  <button class="merge-btn" id="merge" aria-live="polite" disabled>Waiting on deps</button>
-                  <button class="toggle" id="toggle" type="button">▶ Merge the blocker (#128)</button>
-                </div>
+              <div class="merge-area">
+                <button class="merge-btn" id="merge" aria-live="polite" disabled>Waiting on deps</button>
+                <button class="toggle" id="toggle" type="button">▶ Merge the blocker (#128)</button>
               </div>
             </div>
           </div>
         </div>
-      </div> <!-- /hero-grid -->
+      </div> <!-- /hero-content -->
     </div>
   </section>
 
@@ -476,57 +430,25 @@
       <p style="max-width: 65ch; color: var(--muted);">
         Let your agent automatically declare merge dependencies when creating stacked PRs.
         The skill writes the exact same marker as the browser extension so humans see it too.
-        Works with Claude, Cursor, Copilot, Grok and more. Copy the prompt below or grab the full skill from GitHub.
+        Works with Claude, Cursor, Copilot, Grok and more. Copy the prompt — it will tell the agent that the skill is not present yet and that you first need to install the extension + skill files.
       </p>
 
       <div style="margin: var(--space-6) 0;">
-        <strong style="display:block; margin-bottom: var(--space-2); font-size: var(--fs-sm); font-family: var(--font-mono); letter-spacing: 0.05em;">1. Universal prompt — paste into any agent</strong>
-        <pre style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding: var(--space-4); font-size: var(--fs-sm); overflow:auto; line-height:1.5; font-family: var(--font-mono);"><code>You have the MergeChain PR dependency skill.
+        <strong style="display:block; margin-bottom: var(--space-3); font-size: var(--fs-sm); font-family: var(--font-mono); letter-spacing: 0.05em;">Copy ready-to-paste instructions for your agent</strong>
+        <p style="font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--space-3);">Click a button. Paste into your agent. The skill files are not present yet — the prompt tells the agent that the user first needs to install the Chrome extension + the skill. The agent will guide the setup.</p>
 
-After you create a PR (especially stacked ones), run:
-node skills/mergechain-deps/mc-deps.mjs auto &lt;pr-number&gt;
-
-Other commands:
-- node skills/mergechain-deps/mc-deps.mjs show &lt;pr&gt;
-- node skills/mergechain-deps/mc-deps.mjs add &lt;pr&gt; &lt;dep&gt;
-- node skills/mergechain-deps/mc-deps.mjs rm &lt;pr&gt; &lt;dep&gt;
-
-Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</code></pre>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--space-4);">
+          <button class="btn btn--ghost" onclick="copyAgentPrompt('universal')" style="font-size:13px; padding:6px 12px;">Copy universal prompt</button>
+          <button class="btn btn--ghost" onclick="copyAgentPrompt('claude')" style="font-size:13px; padding:6px 12px;">Copy for Claude</button>
+          <button class="btn btn--ghost" onclick="copyAgentPrompt('cursor')" style="font-size:13px; padding:6px 12px;">Copy for Cursor</button>
+          <button class="btn btn--ghost" onclick="copyAgentPrompt('copilot')" style="font-size:13px; padding:6px 12px;">Copy for Copilot</button>
+          <button class="btn btn--ghost" onclick="copyAgentPrompt('grok')" style="font-size:13px; padding:6px 12px;">Copy for Grok</button>
+        </div>
       </div>
 
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4); margin-top: var(--space-4);">
-        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
-          <strong style="font-size: var(--fs-sm);">Claude Code</strong>
-          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
-            <li>Copy <code>skills/mergechain-deps/</code> into your project</li>
-            <li>Place <code>SKILL.md</code> at <code>.claude/skills/mergechain-deps/SKILL.md</code></li>
-            <li>Or paste the Universal prompt above</li>
-          </ul>
-        </div>
-        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
-          <strong style="font-size: var(--fs-sm);">Cursor</strong>
-          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
-            <li>Use <code>skills/mergechain-deps/adapters/cursor/</code></li>
-            <li>Add to <code>.cursor/rules/</code> or project rules</li>
-            <li>Paste the Universal prompt</li>
-          </ul>
-        </div>
-        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
-          <strong style="font-size: var(--fs-sm);">GitHub Copilot</strong>
-          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
-            <li><code>.github/prompts/mergechain-deps.prompt.md</code> is included</li>
-            <li>Copilot picks it up automatically</li>
-            <li>Or paste the Universal prompt in custom instructions</li>
-          </ul>
-        </div>
-        <div style="border: 1px solid var(--border); border-radius: 6px; padding: var(--space-4); background: var(--surface);">
-          <strong style="font-size: var(--fs-sm);">Grok, Windsurf, Kiro, Codex</strong>
-          <ul style="margin: var(--space-2) 0 0; padding-left: var(--space-4); font-size: var(--fs-sm); color: var(--muted); line-height: 1.5;">
-            <li>Paste the Universal prompt into context or rules</li>
-            <li>Use the matching adapter in <code>skills/mergechain-deps/adapters/</code></li>
-            <li>Ensure <code>gh</code> + Node are available to the agent</li>
-          </ul>
-        </div>
+      <div style="font-size: var(--fs-sm); color: var(--muted); max-width: 65ch;">
+        The prompts above tell your agent exactly where to place the skill files (from this repo) and how to use <code>mc-deps.mjs auto</code> after creating stacked PRs.
+        Full adapters + SKILL.md live in <a href="https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps" target="_blank" rel="noopener">skills/mergechain-deps</a>.
       </div>
 
       <p style="margin-top: 20px; font-size:14px;">
@@ -542,12 +464,16 @@ Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</cod
         <strong style="display:block; margin-bottom: var(--space-3); font-size: var(--fs-sm); font-family: var(--font-mono); letter-spacing: 0.05em;">What it looks like after an agent declares a dependency</strong>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--space-4);">
           <div>
-            <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png" alt="Blocked PR after agent declares dep" style="width:100%; border-radius:4px; border:1px solid var(--border); display:block;">
-            <div style="font-size: var(--fs-xs); color:var(--muted); margin-top: var(--space-2);">Merge button blocked (agent used <code>auto</code>)</div>
+            <a href="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png" target="_blank" rel="noopener">
+              <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png" alt="Blocked PR after agent declares dep" style="width:100%; border-radius:4px; border:1px solid var(--border); display:block; cursor: zoom-in;">
+            </a>
+            <div style="font-size: var(--fs-xs); color:var(--muted); margin-top: var(--space-2);">Merge button blocked (agent used <code>auto</code>) — click to enlarge</div>
           </div>
           <div>
-            <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png" alt="Transitive chain view" style="width:100%; border-radius:4px; border:1px solid var(--border); display:block;">
-            <div style="font-size: var(--fs-xs); color:var(--muted); margin-top: var(--space-2);">Transitive chain visible to the whole team</div>
+            <a href="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png" target="_blank" rel="noopener">
+              <img src="https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png" alt="Transitive chain view" style="width:100%; border-radius:4px; border:1px solid var(--border); display:block; cursor: zoom-in;">
+            </a>
+            <div style="font-size: var(--fs-xs); color:var(--muted); margin-top: var(--space-2);">Transitive chain visible to the whole team — click to enlarge</div>
           </div>
         </div>
       </div>
@@ -609,6 +535,131 @@ Always report the exact output. Full guide: skills/mergechain-deps/SKILL.md</cod
       }
     });
   })();
+
+  // Copy-to-agent helpers — one click gives the agent complete setup instructions
+  function copyToClipboard(text, label) {
+    navigator.clipboard.writeText(text).then(function() {
+      var orig = label.textContent;
+      label.textContent = "Copied!";
+      setTimeout(function() { label.textContent = orig; }, 1600);
+    }).catch(function() {
+      // fallback
+      var ta = document.createElement("textarea");
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+      var orig = label.textContent;
+      label.textContent = "Copied!";
+      setTimeout(function() { label.textContent = orig; }, 1600);
+    });
+  }
+
+  const AGENT_PROMPTS = {
+    universal: `MergeChain skill is not present in this project.
+
+The user first needs to install:
+1. The MergeChain Chrome extension (from the Chrome Web Store) + authorize it with GitHub.
+2. The skill files into the project.
+
+You (the agent) should guide the user through installing the skill:
+
+Official location: https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
+
+Recommended steps:
+- Create skills/mergechain-deps/ in the project root.
+- Add mc-deps.mjs from https://raw.githubusercontent.com/oleg-koval/mergechain/main/skills/mergechain-deps/mc-deps.mjs
+- Place SKILL.md or the adapter for your tool:
+  - Claude: .claude/skills/mergechain-deps/SKILL.md
+  - Cursor: .cursor/rules/ (use the cursor adapter)
+  - Copilot: .github/prompts/mergechain-deps.prompt.md (already in repo)
+  - Other: use the appropriate adapter folder
+
+Once the user has installed both the extension and the skill files, your job is:
+
+After creating any stacked or dependent PR, declare the dependency:
+node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
+
+Other commands: show, add, rm
+
+If gh is not authenticated, tell the user exactly: "Run 'gh auth login' in your terminal or re-authorize the MergeChain extension in its Options page."
+
+Always show the exact command output to the user. Never invent dependencies.`,
+
+    claude: `You are using Claude Code. Help set up MergeChain for this project.
+
+The skill is not present yet. The user first needs to:
+
+1. Install the MergeChain Chrome extension and authorize it.
+2. Install the skill files.
+
+Guide the user to add the skill:
+- mkdir -p .claude/skills/mergechain-deps
+- Add SKILL.md from https://raw.githubusercontent.com/oleg-koval/mergechain/main/skills/mergechain-deps/SKILL.md
+- Add mc-deps.mjs to skills/mergechain-deps/
+
+Once installed, after creating a stacked PR run:
+node skills/mergechain-deps/mc-deps.mjs auto <PR_NUMBER>
+
+Other commands: show, add, rm
+
+If gh auth issues: tell the user "Run 'gh auth login' or re-authorize the MergeChain extension in Options."
+
+Always report exact output.`,
+
+    cursor: `Set up MergeChain for Cursor in this project.
+
+The skill is not present. The user first needs to install:
+- The MergeChain Chrome extension + authorize it.
+- The skill files.
+
+Guide the user:
+- Copy from https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
+- Place in .cursor/rules/ or skills/mergechain-deps/ (mc-deps.mjs + instructions)
+
+After creating a stacked PR:
+node skills/mergechain-deps/mc-deps.mjs auto <number>
+
+If auth issues: "Re-authorize the MergeChain extension or run gh auth login."
+
+Always show exact output.`,
+
+    copilot: `You are GitHub Copilot. The project uses MergeChain for PR dependencies.
+
+The skill is not present yet. The user first needs to install the Chrome extension + authorize it, and add the skill files to the project.
+
+The .github/prompts/mergechain-deps.prompt.md is available in the repo (or use the main skill from https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps).
+
+After creating stacked PRs, run:
+node skills/mergechain-deps/mc-deps.mjs auto <pr>
+
+If auth issues: tell the user to re-authenticate the extension or run 'gh auth login'.
+
+Always show the exact command output.`,
+
+    grok: `You are Grok / an agent with shell access.
+
+The skill files are not present. The user first needs to install:
+- MergeChain Chrome extension + authorize it
+- The skill from https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
+
+Guide the user to place mc-deps.mjs at skills/mergechain-deps/mc-deps.mjs (and SKILL.md or adapter).
+
+After creating stacked or dependent PRs:
+node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
+
+If gh auth is broken or token reset, tell the user:
+"Your GitHub authorization for MergeChain appears to be expired. Please re-authorize the MergeChain Chrome extension from its Options page, or run 'gh auth login'."
+
+Always report the exact command output.`,
+  };
+
+  function copyAgentPrompt(type) {
+    var text = AGENT_PROMPTS[type] || AGENT_PROMPTS.universal;
+    var btns = document.querySelectorAll('button[onclick*="copyAgentPrompt"]');
+    var label = null;
+    btns.forEach(function(b) { if (b.textContent.toLowerCase().includes(type === 'universal' ? 'universal' : type)) label = b; });
+    if (!label) label = btns[0];
+    copyToClipboard(text, label || { textContent: '' });
+  }
 </script>
 <!-- Cloudflare Web Analytics. Replace CF_BEACON_TOKEN, or enable it in the Pages
      dashboard (Web Analytics → auto-inject) and delete this tag. -->

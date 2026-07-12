@@ -11,15 +11,9 @@ merge button greys out until the prerequisite lands.
 > No backend. Dependency data lives inside the PR itself. Your token never
 > leaves your browser. (Not affiliated with or endorsed by GitHub, Inc.)
 
-**📹 Demo video** *(coming soon)*
+![MergeChain blocking a pull request](https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png)
 
-> **What it will show:**  
-> 1. Open a PR → click "Blocked by" → type `#128`  
-> 2. Merge button turns red + tooltip appears  
-> 3. Merge the blocker PR (#128)  
-> 4. Return to the dependent PR → button turns green and says "Squash and merge"
-
-![MergeChain on a pull request](docs/screenshot-block.png)
+See the [live demo on mergechain.dev](https://mergechain.dev) for the full interactive experience (including the hero demo).
 
 ## The problem
 
@@ -106,26 +100,31 @@ node skills/mergechain-deps/mc-deps.mjs add 155 acme/other#72
 
 ### Easy integration instructions (copy & paste into your agent)
 
+The skill files are usually not present yet. The user first installs the Chrome extension + authorizes it, then adds the skill files to the project. The agent prompt below guides the setup.
+
 **1. Universal prompt** (paste this into Claude, Cursor, Copilot, Grok, etc.):
 
 ```text
-You have the MergeChain PR dependency skill available.
+MergeChain skill is not present in this project.
 
-Prerequisites in this environment:
-- `gh` CLI is installed and authenticated
-- Node.js 18+ is available
-- The folder `skills/mergechain-deps/` exists in the project
+The user first needs to install:
+1. The MergeChain Chrome extension + authorize it with GitHub.
+2. The skill files from https://github.com/oleg-koval/mergechain/tree/main/skills/mergechain-deps
 
-Core workflow:
-- Prepare changes for a stacked PR.
-- **Require explicit user approval** before any remote mutation: gh pr create, node skills/mergechain-deps/mc-deps.mjs auto, git push, or PR edits.
-- After approval and PR creation, immediately run:
-  node skills/mergechain-deps/mc-deps.mjs auto <new-pr-number>
-- Use `add`, `show`, or `rm` when the user asks to declare or manage dependencies (after approval if remote).
-- Always report exactly what the command printed.
-- Never invent a dependency — only use what `auto` or explicit `add` succeeds with.
+Guide the user to set up the skill:
+- Create skills/mergechain-deps/ and add mc-deps.mjs
+- For Claude: .claude/skills/mergechain-deps/SKILL.md
+- For Cursor: .cursor/rules/
+- For Copilot: .github/prompts/mergechain-deps.prompt.md (or main skill)
 
-Full reference: skills/mergechain-deps/SKILL.md
+Once installed, after creating any stacked or dependent PR run:
+node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
+
+Other commands: show, add, rm
+
+If gh is not authenticated: tell the user "Run 'gh auth login' or re-authorize the MergeChain extension in its Options page."
+
+Always show the exact command output.
 ```
 
 **2. Per-tool setup (one-time)**
@@ -174,8 +173,8 @@ After an agent runs `auto`:
 - The PR shows the dependency block (same as if you had used the browser UI)
 - Merge button is disabled with clear tooltip
 
-![Blocked PR example](docs/screenshots/01-blocked.png)
-![Chain view](docs/screenshots/04-chain.png)
+![Blocked PR example](https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/01-blocked.png)
+![Chain view](https://raw.githubusercontent.com/oleg-koval/mergechain/main/docs/screenshots/04-chain.png)
 
 **Recommended for teams:** Add the `skills/mergechain-deps/` folder to your repo (or at least the script + SKILL.md). Your agents will then automatically handle stacked PR dependencies.
 

@@ -25,6 +25,18 @@ Manage GitHub PR merge dependencies by editing a hidden marker in the PR body us
 
 **Primary script:** `skills/mergechain-deps/mc-deps.mjs` (zero npm dependencies).
 
+## Quick start for agents
+
+1. After creating a PR that should be blocked by another:
+   ```
+   node skills/mergechain-deps/mc-deps.mjs auto <pr-number>
+   ```
+
+2. If GitHub reports auth problems:
+   - Tell the user: "Re-authenticate the MergeChain extension or run `gh auth login`."
+
+3. The marker written is identical to what the browser extension uses.
+
 ## Overview
 
 When you (or an AI agent) are building stacked or interdependent features, declare that one PR must land before another. MergeChain then blocks the dependent PR's merge button (in the browser extension) until prerequisites are satisfied. This skill lets agents and terminal flows create, inspect, and clean those declarations reliably.
@@ -45,6 +57,29 @@ Direct edges only here — transitive chains and cycle detection are handled by 
 - `gh` installed and authenticated: `gh auth status`
 - Token (or GitHub App) has **Pull requests: read & write** on the involved repos.
 - Node 18+ (for the `.mjs` helper).
+
+### Authentication (very important)
+
+The skill talks to GitHub only through the `gh` CLI.
+
+**If you see authentication errors or 401s:**
+
+1. Check status:
+   ```
+   gh auth status
+   ```
+
+2. Re-authenticate (preferred for agents):
+   ```
+   gh auth login --web
+   ```
+   or follow the device flow prompt.
+
+3. **For the human user**: GitHub can revoke tokens at any time (password change, org policy, etc). If the extension or `gh` stops working, tell the user clearly:
+
+   > "Your GitHub authorization for MergeChain appears to have been reset or revoked. Please open the MergeChain extension Options page and re-authorize (device flow or PAT). You can also run `gh auth login` in your terminal."
+
+The browser extension and this skill share the same marker format — once re-authorized, everything stays in sync. No server is involved.
 
 Refs accept: `123`, `#123`, `owner/repo#123`, or a full `https://github.com/.../pull/NNN` URL. Numbers resolve against current repo.
 
