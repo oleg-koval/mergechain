@@ -1,6 +1,6 @@
 ---
 name: mergechain-deps
-description: Declare and manage MergeChain PR merge-dependencies from the terminal or AI agent. Use when marking a PR blocked by another, setting up stacked-PR dependencies, or during push/open-PR flows for branches based on non-default bases (auto-detect prerequisite). Writes the exact hidden marker used by the MergeChain browser extension so terminal/AI changes appear in the UI and vice-versa. Triggers: "mark #X blocked by #Y", "this PR depends on", "stacked PR", "mergechain deps", "declare merge dep", "use mc-deps", or after creating a follow-up PR.
+description: Declare and manage MergeChain PR merge-dependencies from the terminal or AI agent. Use when marking a PR blocked by another, setting up stacked-PR dependencies, or during push/open-PR flows for branches based on non-default bases (auto-detect prerequisite). Writes the visible managed PR-body section and exact hidden marker used by the MergeChain browser extension so terminal/AI changes appear in the UI and vice-versa. Triggers: "mark #X blocked by #Y", "this PR depends on", "stacked PR", "mergechain deps", "declare merge dep", "use mc-deps", or after creating a follow-up PR.
 license: MIT
 allowed-tools: Bash, Node
 compatibility: Codex, Claude Code, Cursor, GitHub Copilot, Grok, Windsurf, Kiro, and other Agent Skills compatible tools. Requires `gh` CLI (authenticated) + Node 18+.
@@ -17,10 +17,17 @@ metadata:
 
 # MergeChain Dependencies (mc-deps)
 
-Manage GitHub PR merge dependencies by editing a hidden marker in the PR body using the `gh` CLI. The marker format is byte-identical to the MergeChain browser extension, so changes made here are instantly visible in the UI (and the reverse).
+Manage GitHub PR merge dependencies by editing a managed section in the PR body using the `gh` CLI. The section includes a human-readable dependency list and the byte-identical hidden marker used by the MergeChain browser extension, so changes made here are instantly visible in GitHub and the extension UI (and the reverse).
 
 ```text
-<!-- pr-merge-deps:{"v":1,"deps":[{"owner":"o","repo":"r","number":91}]} -->
+<!-- mergechain-deps:start -->
+### Merge dependencies
+
+Blocked by:
+- owner/repo#91
+
+<!-- pr-merge-deps:{"v":1,"deps":[{"owner":"owner","repo":"repo","number":91}]} -->
+<!-- mergechain-deps:end -->
 ```
 
 **Primary script:** `skills/mergechain-deps/mc-deps.mjs` (zero npm dependencies).
@@ -35,7 +42,7 @@ Manage GitHub PR merge dependencies by editing a hidden marker in the PR body us
 2. If GitHub reports auth problems:
    - Tell the user: "Re-authenticate the MergeChain extension or run `gh auth login`."
 
-3. The marker written is identical to what the browser extension uses.
+3. The managed section and marker written are identical to what the browser extension uses.
 
 ## Overview
 
@@ -49,7 +56,7 @@ Direct edges only here — transitive chains and cycle detection are handled by 
 - Creating follow-up / stacked PRs: after opening a PR whose base is another feature branch, run `auto`.
 - In scripted or agent-driven flows (`/ship`, custom push, multi-PR sessions in Cursor/Claude/Copilot/Grok).
 - Cross-repo: "acme/db#42 blocks this".
-- Inspect current state or clean up markers.
+- Inspect current state or clean up managed dependency sections.
 - Do **not** use for editing unrelated PR body text (this tool carefully preserves surrounding content).
 
 ## Prerequisites
@@ -79,7 +86,7 @@ The skill talks to GitHub only through the `gh` CLI.
 
    > "Your GitHub authorization for MergeChain appears to have been reset or revoked. Please open the MergeChain extension Options page and re-authorize (device flow or PAT). You can also run `gh auth login` in your terminal."
 
-The browser extension and this skill share the same marker format — once re-authorized, everything stays in sync. No server is involved.
+The browser extension and this skill share the same managed-section and marker format — once re-authorized, everything stays in sync. No server is involved.
 
 Refs accept: `123`, `#123`, `owner/repo#123`, or a full `https://github.com/.../pull/NNN` URL. Numbers resolve against current repo.
 
@@ -93,14 +100,14 @@ node skills/mergechain-deps/mc-deps.mjs show 143
 node skills/mergechain-deps/mc-deps.mjs add 143 128
 node skills/mergechain-deps/mc-deps.mjs add 143 acme/db#128
 
-# Remove one dep (removes marker entirely if last)
+# Remove one dep (removes the managed section entirely if last)
 node skills/mergechain-deps/mc-deps.mjs rm 143 128
 
 # Auto-detect for stacked PRs (run after PR exists)
 node skills/mergechain-deps/mc-deps.mjs auto 155
 ```
 
-`add` refuses self-deps, dedupes, and validates the target PR before writing. Removing the last dep strips the marker cleanly.
+`add` refuses self-deps, dedupes, and validates the target PR before writing. Removing the last dep strips the managed section cleanly.
 
 ## Workflows
 
@@ -152,7 +159,8 @@ Always surface the exact output from the tool to the user.
 
 ## Integration with the Browser Extension
 
-- Marker is the single source of truth.
+- The visible dependency list survives when GitHub is opened without the extension.
+- The hidden marker remains the machine-readable source of truth.
 - Skill sets it → users with the extension see the dependency block, blocked merge button, chains, and "depend on this" reverse list.
 - Humans using the extension UI to add/remove deps → `mc-deps show` and `auto` will see the updated state.
 - No backend, no drift risk. Perfect for mixed human + agent teams.
@@ -166,12 +174,12 @@ Use this **skill** for creation-time automation and agent flows.
 
 After any `add`/`rm`/`auto`:
 - The command prints the new state: `XXX now blocked by [list or nothing]`
-- For same-repo: `gh pr view NNN --json body` (or the UI) contains the exact `<!-- pr-merge-deps:... -->` comment (or it is absent when empty).
+- For same-repo: `gh pr view NNN --json body` (or the UI) contains one `### Merge dependencies` section and the exact `<!-- pr-merge-deps:... -->` comment (or both are absent when empty).
 - For cross-repo: use `gh pr view NNN --repo owner/repo --json body`.
 - No duplicate entries.
 - Cross-repo refs are preserved correctly.
 
-Note: marker removal uses strip + trim for cleanliness (not strict byte-for-byte preservation of surrounding whitespace).
+Note: managed-section removal uses strip + trim for cleanliness (not strict byte-for-byte preservation of surrounding whitespace). Legacy marker-only bodies are upgraded on the next dependency edit.
 
 ## Safety & Notes
 

@@ -35,19 +35,45 @@ describe('deps-codec', () => {
     expect(stripDeps(body)).toBe('Hello');
   });
 
-  it('upsertDeps replaces an existing marker instead of appending a second', () => {
+  it('upsertDeps writes a visible managed section with a hidden marker', () => {
+    const body = upsertDeps('Body', [a, b]);
+    expect(body).toContain('### Merge dependencies');
+    expect(body).toContain('Blocked by:\n- teifi-digital/gic-live#91\n- teifi-digital/other-repo#12');
+    expect(body).toContain(encodeDeps([a, b]));
+  });
+
+  it('upsertDeps replaces an existing section instead of appending a second', () => {
     const once = upsertDeps('Body', [a]);
     const twice = upsertDeps(once, [a, b]);
     expect(twice.match(/pr-merge-deps/g)?.length).toBe(1);
+    expect(twice.match(/mergechain-deps:start/g)?.length).toBe(1);
+    expect(twice).toContain('Body');
     expect(decodeDeps(twice)).toEqual({ ok: true, value: [a, b] });
   });
 
-  it('upsertDeps with empty list removes the marker', () => {
+  it('upsertDeps with empty list removes the managed section and marker', () => {
     const withDep = upsertDeps('Body', [a]);
     expect(upsertDeps(withDep, [])).toBe('Body');
   });
 
-  it('upsertDeps on an empty body yields just the marker', () => {
-    expect(upsertDeps('', [a])).toBe(encodeDeps([a]));
+  it('upsertDeps upgrades a legacy marker-only body on edit', () => {
+    const legacy = `Body\n\n${encodeDeps([a])}`;
+    const upgraded = upsertDeps(legacy, [a, b]);
+    expect(upgraded).toContain('### Merge dependencies');
+    expect(upgraded.match(/pr-merge-deps/g)?.length).toBe(1);
+    expect(upgraded).toContain('Body');
+  });
+
+  it('upsertDeps deduplicates visible and encoded dependency entries', () => {
+    const duplicate: PrRef = { owner: 'TEIFI-DIGITAL', repo: 'GIC-LIVE', number: 91 };
+    const body = upsertDeps('', [a, duplicate]);
+    expect(body.match(/gic-live#91/gi)?.length).toBe(1);
+    expect(decodeDeps(body)).toEqual({ ok: true, value: [a] });
+  });
+
+  it('upsertDeps on an empty body yields just the managed section', () => {
+    const body = upsertDeps('', [a]);
+    expect(body.startsWith('<!-- mergechain-deps:start -->')).toBe(true);
+    expect(body.endsWith('<!-- mergechain-deps:end -->')).toBe(true);
   });
 });
