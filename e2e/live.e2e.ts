@@ -61,7 +61,7 @@ const ready = token !== '' && owner !== '' && repo !== '' && Number.isInteger(A)
 
 describe.skipIf(!ready)('live GitHub E2E', () => {
   beforeAll(async () => {
-    // Clean slate: clear any markers left by a previous run.
+    // Clean slate: clear any managed dependency data left by a previous run.
     await Promise.all([setDeps(ref(A), []), setDeps(ref(B), []), setDeps(ref(C), [])]);
   });
 
@@ -72,7 +72,9 @@ describe.skipIf(!ready)('live GitHub E2E', () => {
     const after = await fetchPr(token, ref(B));
     expect(after.ok).toBe(true);
     if (after.ok) {
-      console.log(`PR #${B} body now contains:\n  ${after.value.body.split('\n').at(-1)}`);
+      console.log(`PR #${B} body now contains:\n${after.value.body}`);
+      expect(after.value.body).toContain('### Merge dependencies');
+      expect(after.value.body).toContain(`- ${owner}/${repo}#${A}`);
       const decoded = decodeDeps(after.value.body);
       expect(decoded).toEqual({ ok: true, value: [ref(A)] });
     }

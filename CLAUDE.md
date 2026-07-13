@@ -11,9 +11,9 @@ merged. Supports **cross-repo** dependencies and **transitive chains** (A → B 
 with cycle detection. Internal Teifi tool. The injected UI is always attributed
 to Teifi (badge in the block header) so it is never confused with native GitHub.
 
-There is no backend. Dependencies are stored as a hidden HTML comment inside the
-PR body via the GitHub REST API, so the data lives in the PR forever and is
-readable with or without the extension.
+There is no backend. Dependencies are stored as a visible managed section plus a
+hidden HTML marker inside the PR body via the GitHub REST API, so the relationship
+remains visible and the data remains machine-readable without the extension.
 
 ## Architecture
 
@@ -23,7 +23,8 @@ The codebase is split by **side-effect boundary**. This split is enforced by ESL
 
 - `result.ts` — hand-rolled `Result<T, E>` (no exceptions cross the codebase). Zero deps.
 - `pr-ref.ts` — parse/format PR references (`#91`, `owner/repo#123`), stable keys.
-- `deps-codec.ts` — encode/decode the hidden `<!-- pr-merge-deps:{…} -->` comment.
+- `deps-codec.ts` — manage the visible dependency section and encode/decode its
+  hidden `<!-- pr-merge-deps:{…} -->` source-of-truth marker.
 - `pr-search.ts` — rank PRs for the autocomplete (numeric + fuzzy title).
 - `dependency-graph.ts` — resolve the transitive closure, detect cycles, cap depth.
 

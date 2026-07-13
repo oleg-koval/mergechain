@@ -32,8 +32,8 @@ MergeChain makes that dependency explicit and enforces it at the merge button.
 - **"Depend on this" view** — see which open PRs are waiting on the one you're
   viewing.
 - **List badges** on `/pulls` flag which PRs are blocked vs ready.
-- **No backend** — the dependency list is stored as a hidden marker in the PR
-  description, so teammates with the extension see it automatically.
+- **No backend** — the dependency list is stored as a managed section in the PR
+  description, so the relationship stays visible even without the extension.
 
 > **Honest caveat:** the merge block is enforced in _your browser_. A teammate
 > without the extension can still merge a "blocked" PR. MergeChain is a strong
@@ -80,7 +80,7 @@ This auto-detects stacked dependencies and keeps everything in sync with the ext
 
 The browser extension shines for **humans** — visual blocks, autocomplete, reverse "depends on this" views, and enforcement at the merge button.
 
-For **agents and scripted flows** (Claude Code, Cursor, GitHub Copilot, Grok, Codex, Windsurf, custom `/ship` scripts) that create multiple stacked PRs, use the companion **terminal skill**. It writes the **exact same hidden marker** as the extension so everything stays in sync.
+For **agents and scripted flows** (Claude Code, Cursor, GitHub Copilot, Grok, Codex, Windsurf, custom `/ship` scripts) that create multiple stacked PRs, use the companion **terminal skill**. It writes the **exact same managed PR-body section and hidden marker** as the extension so everything stays in sync.
 
 ### Quick Start (copy-paste ready)
 
@@ -206,9 +206,10 @@ once — see [SETUP.md](./SETUP.md).
 
 ## How it works
 
-- **Storage:** dependencies are a hidden HTML comment in the PR body, written via
-  the GitHub API. No server, no database.
-- **Declaring:** in the UI (type `#123`, fuzzy title, or `owner/repo#123`), or via the terminal skill (`skills/mergechain-deps/mc-deps.mjs`) for agents and scripts. Both write the same marker.
+- **Storage:** dependencies are a visible managed section plus a hidden
+  machine-readable marker in the PR body, written via the GitHub API. No server,
+  no database.
+- **Declaring:** in the UI (type `#123`, fuzzy title, or `owner/repo#123`), or via the terminal skill (`skills/mergechain-deps/mc-deps.mjs`) for agents and scripts. Both write the same managed section and marker.
 - **Auth:** GitHub App device-flow sign-in, or a personal access token. The
   token lives in `chrome.storage.local`, is sent only to `api.github.com` from
   the background worker, and the page you browse never sees it. See

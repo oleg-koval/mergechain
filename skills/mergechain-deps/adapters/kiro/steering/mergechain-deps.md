@@ -1,5 +1,5 @@
 ---
-description: "Declare and manage MergeChain PR merge-dependencies (stacked PRs) using gh + the mc-deps helper. Compatible with the browser extension marker."
+description: "Declare and manage MergeChain PR merge-dependencies (stacked PRs) using gh + the mc-deps helper. Compatible with the browser extension's managed PR-body section and marker."
 ---
 
 # MergeChain Dependencies (mc-deps)

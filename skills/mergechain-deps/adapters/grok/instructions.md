@@ -5,7 +5,7 @@ Include (or reference) the content of `skills/mergechain-deps/SKILL.md` in your 
 Key points for Grok:
 - After opening a stacked PR, run `node skills/mergechain-deps/mc-deps.mjs auto <pr>`
 - Use `add` / `show` / `rm` for explicit control.
-- The marker written is understood by the MergeChain browser extension.
+- The visible managed section and marker are understood by the MergeChain browser extension.
 - Always surface the tool's output to the user.
 - Refs: numbers, #NNN, owner/repo#NNN, or full PR URLs.
 

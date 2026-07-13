@@ -38,7 +38,7 @@ read and update PRs. Not affiliated with or endorsed by GitHub, Inc.
   device. No remote storage.
 - **host permission `https://api.github.com/*`** — Call the GitHub REST API
   (authenticated with the user's own token) to read pull requests and write the
-  dependency marker into a PR description.
+  managed dependency section and marker into a PR description.
 - **host permission `https://github.com/*`** — Inject the dependency UI on PR
   pages and run the OAuth device-flow sign-in (`github.com/login/...`).
 

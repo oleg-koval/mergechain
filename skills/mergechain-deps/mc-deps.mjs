@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// mc-deps — read/write MergeChain dependency markers in a GitHub PR body via gh.
+// mc-deps — read/write MergeChain dependency sections in a GitHub PR body via gh.
 //
-// The marker format is byte-compatible with the MergeChain extension
+// The managed-section and marker formats mirror the MergeChain extension
 // (src/lib/deps-codec.ts), so deps set here appear in the extension's block and
-// vice-versa:
+// vice-versa. The hidden source-of-truth marker remains:
 //   <!-- pr-merge-deps:{"v":1,"deps":[{"owner":"o","repo":"r","number":91}]} -->
 //
 // See the vibrant agent-ready documentation:
@@ -27,6 +27,8 @@ import { join } from 'node:path';
 
 const PREFIX = 'pr-merge-deps:';
 const MARKER = /<!--\s*pr-merge-deps:(.*?)\s*-->/s;
+const ALL_MARKERS = /<!--\s*pr-merge-deps:(.*?)\s*-->/gs;
+const MANAGED_SECTION = /<!--\s*mergechain-deps:start\s*-->.*?<!--\s*mergechain-deps:end\s*-->/gs;
 const SCHEMA_VERSION = 1;
 
 const die = (msg) => {
@@ -62,16 +64,33 @@ const parseRef = (raw) => {
 };
 
 // ── codec (mirrors deps-codec.ts) ───────────────────────────────────────────
-const encodeDeps = (deps) => {
+const normalizeDeps = (deps) => {
   const seen = new Set();
-  const unique = deps.filter((d) => {
+  return deps.filter((d) => {
     const k = refKey(d);
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
   });
-  const normalized = unique.map((d) => ({ owner: d.owner, repo: d.repo, number: d.number }));
+};
+
+const encodeDeps = (deps) => {
+  const normalized = normalizeDeps(deps).map((d) => ({ owner: d.owner, repo: d.repo, number: d.number }));
   return `<!-- ${PREFIX}${JSON.stringify({ v: SCHEMA_VERSION, deps: normalized })} -->`;
+};
+
+const encodeManagedSection = (deps) => {
+  const normalized = normalizeDeps(deps);
+  return [
+    '<!-- mergechain-deps:start -->',
+    '### Merge dependencies',
+    '',
+    'Blocked by:',
+    ...normalized.map((dep) => `- ${fmt(dep)}`),
+    '',
+    encodeDeps(normalized),
+    '<!-- mergechain-deps:end -->',
+  ].join('\n');
 };
 
 const decodeDeps = (body) => {
@@ -88,12 +107,17 @@ const decodeDeps = (body) => {
   return deps;
 };
 
-const stripDeps = (body) => (body || '').replace(MARKER, '').replace(/\n{3,}/g, '\n\n').trim();
+const stripDeps = (body) => (body || '')
+  .replace(MANAGED_SECTION, '')
+  .replace(ALL_MARKERS, '')
+  .replace(/\n{3,}/g, '\n\n')
+  .trim();
 
 const upsertDeps = (body, deps) => {
   const clean = stripDeps(body);
   if (deps.length === 0) return clean;
-  return clean.length === 0 ? encodeDeps(deps) : `${clean}\n\n${encodeDeps(deps)}`;
+  const section = encodeManagedSection(deps);
+  return clean.length === 0 ? section : `${clean}\n\n${section}`;
 };
 
 // ── gh helpers ──────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@
 
 Use this skill with AI coding agents (Claude, Cursor, Copilot, Grok, etc.) and terminal scripts to declare and manage PR merge dependencies.
 
-The commands write the same hidden marker that the [MergeChain browser extension](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb) uses, so the extension and terminal clients share the same source of truth (though concurrent edits should be avoided).
+The commands write the same visible managed PR-body section and hidden marker that the [MergeChain browser extension](https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb) uses, so the relationship remains visible without the extension and terminal clients share the same source of truth (though concurrent edits should be avoided).
 
 ## Quick use
 
