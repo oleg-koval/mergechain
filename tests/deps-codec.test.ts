@@ -37,9 +37,11 @@ describe('deps-codec', () => {
 
   it('upsertDeps writes a visible managed section with a hidden marker', () => {
     const body = upsertDeps('Body', [a, b]);
+    expect(body).toContain('<!-- mergechain-deps:start -->');
     expect(body).toContain('### Merge dependencies');
     expect(body).toContain('Blocked by:\n- teifi-digital/gic-live#91\n- teifi-digital/other-repo#12');
-    expect(body).toContain(encodeDeps([a, b]));
+    expect(body).toContain('<!-- pr-merge-deps:{"v":1,"deps":[{"owner":"teifi-digital","repo":"gic-live","number":91},{"owner":"teifi-digital","repo":"other-repo","number":12}]} -->');
+    expect(body).toContain('<!-- mergechain-deps:end -->');
   });
 
   it('upsertDeps replaces an existing section instead of appending a second', () => {
