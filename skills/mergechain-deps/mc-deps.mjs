@@ -174,7 +174,7 @@ const cmdRm = (ref, dep) =>
 const cmdAuto = (ref) => {
   const { baseRefName } = prField(ref, 'baseRefName');
   const defaultBranch = gh([
-    'repo', 'view', '--repo', `${ref.owner}/${ref.repo}`,
+    'repo', 'view', `${ref.owner}/${ref.repo}`,
     '--json', 'defaultBranchRef', '-q', '.defaultBranchRef.name',
   ]);
   if (baseRefName === defaultBranch) {
