@@ -253,7 +253,7 @@ See [CLAUDE.md](./CLAUDE.md) for architecture notes if you're hacking on the cod
 
 ## Also for GitHub pull requests
 
-- [PR Redline](https://github.com/oleg-koval/pr-redline): tints pull requests into protected branches, so a production PR never passes for a staging one. MergeChain controls merge *order*; PR Redline makes the merge *target* obvious.
+- [PR Redline](https://github.com/oleg-koval/production-pr-warning): tints pull requests into protected branches, so a production PR never passes for a staging one. MergeChain controls merge *order*; PR Redline makes the merge *target* obvious.
 
 ## License
 
