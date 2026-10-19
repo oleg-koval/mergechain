@@ -226,6 +226,11 @@
   .foot .grow { flex: 1; }
   .foot a { color: var(--muted); font-size: var(--fs-xs); }
   .foot a:hover { color: var(--text); }
+  /* Sibling tools by the same author: one row, same weight as the footer links. */
+  .stack { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border-muted); font-size: var(--fs-xs); }
+  .stack a { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--text); font-weight: 600; text-decoration: none; }
+  .stack a:hover { text-decoration: underline; }
+  .stack img { border-radius: 3px; }
   .disclaimer { margin-top: var(--space-4); font-size: var(--fs-xs); color: var(--muted); max-width: 60ch; line-height: 1.4; }
 
   /* Clean, realistic demo preview */
@@ -509,6 +514,11 @@
       <a href="https://github.com/oleg-koval/mergechain/blob/main/PRIVACY.md">Privacy</a>
       <!-- DONATE_LINK: wire this to the funding URL once chosen (GitHub Sponsors / Ko-fi). -->
       <a href="#" data-donate>Support the project</a>
+    </div>
+    <div class="stack">
+      <span>Also for GitHub pull requests:</span>
+      <a href="https://github.com/oleg-koval/production-pr-warning" target="_blank" rel="noopener"><img src="pr-redline-32.png" width="16" height="16" alt="">PR Redline</a>
+      <span>tints PRs into protected branches, so a production PR never passes for a staging one.</span>
     </div>
     <p class="disclaimer">MergeChain is an independent project and is not affiliated with, sponsored by, or endorsed by GitHub, Inc. GitHub is a trademark of GitHub, Inc.</p>
   </div>

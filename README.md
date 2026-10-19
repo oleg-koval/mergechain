@@ -251,6 +251,10 @@ We keep the bar low. Small improvements are appreciated.
 
 See [CLAUDE.md](./CLAUDE.md) for architecture notes if you're hacking on the code.
 
+## Also for GitHub pull requests
+
+- [PR Redline](https://github.com/oleg-koval/production-pr-warning): tints pull requests into protected branches, so a production PR never passes for a staging one. MergeChain controls merge *order*; PR Redline makes the merge *target* obvious.
+
 ## License
 
 Proprietary — see [LICENSE](./LICENSE).
