@@ -39,3 +39,4 @@ The easiest way: copy the whole folder into your project and paste the universal
 - Main project: https://github.com/oleg-koval/mergechain
 - Browser extension: https://chromewebstore.google.com/detail/eaeiiipdodmbdcdpnmafkmomfpahlkli?utm_source=item-share-cb
 - Full docs & examples: [SKILL.md](./SKILL.md)
+- Companion extension: [PR Redline](https://github.com/oleg-koval/production-pr-warning) tints PRs into production and other protected branches
