@@ -16,7 +16,7 @@ jobs:
       SUBMIT_KEYS: ${{ secrets.SUBMIT_KEYS }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
